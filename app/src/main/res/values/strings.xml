@@ -1,0 +1,101 @@
+<resources>
+    <string name="app_name">Blackjack</string>
+    <string name="storage_loading">Chargement des données…</string>
+    <string name="storage_error">Impossible de lire les données. Fermez puis relancez l’application pour réessayer.</string>
+    <string name="storage_write_error">La mise n’a pas pu être sauvegardée. Modifiez-la pour réessayer.</string>
+    <plurals name="saved_games_count">
+        <item quantity="one">%1$d partie enregistrée</item>
+        <item quantity="other">%1$d parties enregistrées</item>
+    </plurals>
+    <plurals name="observed_cards_count">
+        <item quantity="one">%1$d carte observée</item>
+        <item quantity="other">%1$d cartes observées</item>
+    </plurals>
+    <string name="screen_title">Blackjack · %1$s</string>
+    <plurals name="balance_chips">
+        <item quantity="one">%1$d jeton</item>
+        <item quantity="other">%1$d jetons</item>
+    </plurals>
+    <string name="destination_game">Jouer</string>
+    <string name="destination_history">Historique</string>
+    <string name="destination_statistics">Statistiques</string>
+    <string name="action_start_game">Commencer</string>
+    <string name="action_hit">Piger</string>
+    <string name="action_stand">Arrêter</string>
+    <string name="action_split">Séparer</string>
+    <string name="game_placeholder_title">Prêt pour une partie?</string>
+    <string name="bet_prompt">Choisissez votre mise</string>
+    <string name="bet_label">Mise</string>
+    <string name="chips_suffix">jetons</string>
+    <plurals name="bet_reused_hint">
+        <item quantity="one">Mise conservée : %1$d jeton</item>
+        <item quantity="other">Mise conservée : %1$d jetons</item>
+    </plurals>
+    <string name="bet_error_required">Entrez une mise.</string>
+    <string name="bet_error_number">La mise doit être un nombre entier.</string>
+    <string name="bet_error_range">La mise doit être entre 1 et 100 jetons.</string>
+    <string name="bet_error_insufficient_funds">Solde insuffisant pour cette mise.</string>
+    <string name="deck_count_prompt">Nombre de paquets dans le sabot</string>
+    <plurals name="deck_count_option">
+        <item quantity="one">%1$d paquet</item>
+        <item quantity="other">%1$d paquets</item>
+    </plurals>
+    <string name="dealer_hand_title">Croupier · %1$s</string>
+    <string name="player_hand_title">Joueur · %1$d</string>
+    <string name="player_numbered_hand_title">Main %1$d · %2$d</string>
+    <string name="score_hidden">?</string>
+    <string name="hand_bust">Dépassement</string>
+    <string name="active_hand">À jouer</string>
+    <string name="outcome_player_win">Vous gagnez</string>
+    <string name="outcome_dealer_win">Le croupier gagne</string>
+    <string name="outcome_push">Égalité</string>
+    <string name="outcome_player_blackjack">Blackjack naturel!</string>
+    <string name="history_placeholder_title">Aucune partie enregistrée</string>
+    <string name="history_placeholder_body">Les parties terminées apparaîtront ici.</string>
+    <string name="statistics_placeholder_title">Aucune statistique disponible</string>
+    <string name="statistics_placeholder_body">Les cartes observées seront calculées depuis la base de données.</string>
+    <string name="card_hidden">Carte cachée</string>
+    <string name="card_description">%1$s de %2$s</string>
+    <string name="rank_ace">As</string>
+    <string name="rank_two">Deux</string>
+    <string name="rank_three">Trois</string>
+    <string name="rank_four">Quatre</string>
+    <string name="rank_five">Cinq</string>
+    <string name="rank_six">Six</string>
+    <string name="rank_seven">Sept</string>
+    <string name="rank_eight">Huit</string>
+    <string name="rank_nine">Neuf</string>
+    <string name="rank_ten">Dix</string>
+    <string name="rank_jack">Valet</string>
+    <string name="rank_queen">Dame</string>
+    <string name="rank_king">Roi</string>
+    <string name="suit_clubs">trèfle</string>
+    <string name="suit_diamonds">carreau</string>
+    <string name="suit_hearts">cœur</string>
+    <string name="suit_spades">pique</string>
+    <string name="round_saving">Enregistrement…</string>
+    <string name="round_save_error">La manche ne peut pas être enregistrée. Réessayez avant de continuer.</string>
+    <string name="retry_save">Réessayer</string>
+    <plurals name="history_total_bet">
+        <item quantity="one">Mise totale : %1$d jeton</item>
+        <item quantity="other">Mise totale : %1$d jetons</item>
+    </plurals>
+    <plurals name="history_hand">
+        <item quantity="one">Main %1$d · Mise %2$d · %3$s · %4$+d jeton</item>
+        <item quantity="other">Main %1$d · Mise %2$d · %3$s · %4$+d jetons</item>
+    </plurals>
+    <plurals name="history_delta">
+        <item quantity="one">Variation : %1$+d jeton</item>
+        <item quantity="other">Variation : %1$+d jetons</item>
+    </plurals>
+    <plurals name="history_balance">
+        <item quantity="one">Solde final : %1$d jeton</item>
+        <item quantity="other">Solde final : %1$d jetons</item>
+    </plurals>
+    <string name="statistics_explanation">Cartes observées depuis le début. La carte cachée compte seulement après révélation.</string>
+    <string name="statistics_ten">10 / Valet / Dame / Roi</string>
+    <plurals name="statistics_value_count">
+        <item quantity="one">%1$d carte · %2$.1f%%</item>
+        <item quantity="other">%1$d cartes · %2$.1f%%</item>
+    </plurals>
+</resources>

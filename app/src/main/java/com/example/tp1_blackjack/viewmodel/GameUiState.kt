@@ -1,0 +1,46 @@
+package com.example.tp1_blackjack.viewmodel
+
+import com.example.tp1_blackjack.model.Card
+import com.example.tp1_blackjack.model.GameAction
+import com.example.tp1_blackjack.model.GamePhase
+import com.example.tp1_blackjack.model.HandOutcome
+import com.example.tp1_blackjack.model.PlayerHandStatus
+
+data class DisplayCardUiState(
+    val card: Card?,
+    val isFaceDown: Boolean,
+)
+
+data class PlayerHandUiState(
+    val cards: List<Card>,
+    val score: Int,
+    val status: PlayerHandStatus,
+    val isActive: Boolean,
+    val outcome: HandOutcome?,
+)
+
+enum class BetInputError {
+    REQUIRED,
+    NOT_A_NUMBER,
+    OUT_OF_RANGE,
+    INSUFFICIENT_FUNDS,
+}
+
+data class GameUiState(
+    val isSaving: Boolean = false,
+    val canRetrySave: Boolean = false,
+    val isLoading: Boolean = false,
+    val hasStorageError: Boolean = false,
+    val phase: GamePhase = GamePhase.AWAITING_START,
+    val dealerCards: List<DisplayCardUiState> = emptyList(),
+    val dealerScore: Int? = null,
+    val playerHands: List<PlayerHandUiState> = emptyList(),
+    val betInput: String = "50",
+    val selectedBet: Int = 50,
+    val balance: Int = 1_000,
+    val selectedDeckCount: Int = 1,
+    val supportedDeckCounts: List<Int> = listOf(1, 2, 4, 6),
+    val canSelectDeckCount: Boolean = true,
+    val betInputError: BetInputError? = null,
+    val availableActions: Set<GameAction> = setOf(GameAction.START_ROUND),
+)
