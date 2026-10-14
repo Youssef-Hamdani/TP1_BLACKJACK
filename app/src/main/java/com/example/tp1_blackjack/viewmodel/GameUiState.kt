@@ -17,6 +17,8 @@ data class PlayerHandUiState(
     val status: PlayerHandStatus,
     val isActive: Boolean,
     val outcome: HandOutcome?,
+    val bet: Int? = null,
+    val netChange: Int? = null,
 )
 
 enum class BetInputError {
@@ -35,6 +37,7 @@ data class GameUiState(
     val dealerCards: List<DisplayCardUiState> = emptyList(),
     val dealerScore: Int? = null,
     val playerHands: List<PlayerHandUiState> = emptyList(),
+    val netChange: Int? = null,
     val betInput: String = "50",
     val selectedBet: Int = 50,
     val balance: Int = 1_000,

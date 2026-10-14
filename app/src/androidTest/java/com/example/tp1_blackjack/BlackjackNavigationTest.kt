@@ -22,7 +22,7 @@ import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.theme.TP1_BlackJackTheme
 import org.junit.After
 import org.junit.Before
-import com.example.tp1_blackjack.ui.scaffold.GAME_FAB_TEST_TAG
+import com.example.tp1_blackjack.ui.screens.START_ROUND_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.ROUND_CONTENT_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.SPLIT_ACTION_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.STAND_ACTION_TEST_TAG
@@ -66,8 +66,8 @@ class BlackjackNavigationTest {
 
     @Test
     fun bottomNavigation_reachesEveryDestination_withoutDuplicatingHistory() {
-        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).assertIsDisplayed()
-        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         composeRule.waitUntil(5_000) { !game.uiState.value.isSaving }
         composeRule.onNodeWithTag(ROUND_CONTENT_TEST_TAG).assertIsDisplayed()
         val cardsBeforeNavigation = game.uiState.value.playerHands.single().cards

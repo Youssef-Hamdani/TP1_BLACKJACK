@@ -14,8 +14,10 @@ import com.example.tp1_blackjack.model.*
 import com.example.tp1_blackjack.repository.GameRepository
 import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.scaffold.GAME_FAB_TEST_TAG
+import com.example.tp1_blackjack.ui.screens.START_ROUND_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.STAND_ACTION_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.SPLIT_ACTION_TEST_TAG
+import com.example.tp1_blackjack.ui.screens.ROUND_RESULT_SCREEN_TEST_TAG
 import com.example.tp1_blackjack.ui.theme.TP1_BlackJackTheme
 import com.example.tp1_blackjack.viewmodel.GameViewModel
 import com.example.tp1_blackjack.viewmodel.RecordsViewModel
@@ -47,13 +49,13 @@ class GamePersistenceFlowTest {
 
     @Test fun hitStand_updatesSqlAndHistoryThroughActualUiEvents() {
         val game = showGame(Rank.TEN, Rank.FIVE, Rank.TWO, Rank.SIX, Rank.FIVE, Rank.SIX)
-        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         awaitSaved(game)
         assertEquals(950, runBlocking { repository.loadWallet() }.balance)
         composeRule.onNodeWithTag("destination-statistics").performClick()
         waitForText("3 cartes observées")
         composeRule.onNodeWithText(context.getString(R.string.rank_ace)).assertIsDisplayed()
-        composeRule.onNodeWithTag("destination-game").performClick()
+        composeRule.onNodeWithTag("destination-preparation").performClick()
         composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
         awaitSaved(game)
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performClick()
@@ -96,7 +98,7 @@ class GamePersistenceFlowTest {
 
     private fun verifySplitPersistence() {
         val game = showGame(Rank.EIGHT, Rank.TEN, Rank.EIGHT, Rank.SEVEN, Rank.TEN, Rank.NINE)
-        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         awaitSaved(game)
         composeRule.onNodeWithTag(SPLIT_ACTION_TEST_TAG).performScrollTo().performClick()
         awaitSaved(game)
@@ -123,7 +125,7 @@ class GamePersistenceFlowTest {
 
     @Test fun failedSave_thenRetry_doesNotDrawOrDebitAgain() {
         val game = showGame(Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX, Rank.KING)
-        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         awaitSaved(game)
         database.openHelper.writableDatabase.execSQL("""
             CREATE TRIGGER fail_round BEFORE UPDATE OF balance ON wallet
@@ -136,9 +138,11 @@ class GamePersistenceFlowTest {
         assertTrue(runBlocking { repository.history.first() }.isEmpty())
         assertEquals(950, runBlocking { repository.loadWallet() }.balance)
         assertEquals(3, runBlocking { repository.cardStatistics.first() }.sumOf { it.count })
+        composeRule.onAllNodesWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertCountEquals(0)
         database.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_round")
         composeRule.onNodeWithTag("retry-save").performClick()
         awaitSaved(game)
+        composeRule.onNodeWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertIsDisplayed()
         val entry = runBlocking { repository.history.first().single() }
         val cards = runBlocking { repository.readDraws(entry.game.id) }
         assertEquals(5, cards.size)

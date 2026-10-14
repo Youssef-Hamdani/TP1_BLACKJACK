@@ -13,6 +13,7 @@ import com.example.tp1_blackjack.model.GameAction
 import com.example.tp1_blackjack.model.GamePhase
 import com.example.tp1_blackjack.model.GameState
 import com.example.tp1_blackjack.model.GameRecord
+import com.example.tp1_blackjack.model.PayoutCalculator
 import java.util.UUID
 import com.example.tp1_blackjack.model.Shoe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -179,7 +180,21 @@ private fun GameState.toUiState(
                 status = playerHand.status,
                 isActive = phase == GamePhase.PLAYER_TURN && index == playerHands.activeHandIndex,
                 outcome = outcomes.getOrNull(index),
+                bet = committedBets.getOrNull(index)?.amount,
+                netChange = outcomes.getOrNull(index)?.let { outcome ->
+                    committedBets.getOrNull(index)?.let { bet ->
+                        PayoutCalculator.grossPayout(bet, outcome) - bet.amount
+                    }
+                },
             )
+        },
+        netChange = if (phase == GamePhase.COMPLETE && outcomes.size == committedBets.size) {
+            outcomes.indices.sumOf { index ->
+                PayoutCalculator.grossPayout(committedBets[index], outcomes[index]) -
+                    committedBets[index].amount
+            }
+        } else {
+            null
         },
         betInput = betInput,
         selectedBet = selectedBet.amount,

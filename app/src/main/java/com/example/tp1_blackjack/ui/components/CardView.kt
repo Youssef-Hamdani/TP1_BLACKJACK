@@ -113,9 +113,7 @@ private fun FaceUpCard(card: Card) {
             color = suitColor,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .graphicsLayer { rotationZ = 180f },
+            modifier = Modifier.align(Alignment.BottomEnd),
         )
     }
 }

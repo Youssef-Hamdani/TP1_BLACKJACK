@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,7 +19,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tp1_blackjack.R
@@ -35,6 +33,7 @@ fun BlackjackScaffold(
     navController: NavHostController,
     balance: Int,
     primaryGameAction: GameAction?,
+    gameTabRoute: String,
     onGameAction: (GameAction) -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -66,16 +65,27 @@ fun BlackjackScaffold(
         },
         bottomBar = {
             NavigationBar {
-                BlackjackDestination.entries.forEach { destination ->
+                BlackjackDestination.entries.filter { it.showInBottomNavigation }.forEach { destination ->
+                    val isGameTab = destination == BlackjackDestination.PREPARATION
+                    val selected = if (isGameTab) {
+                        currentDestination in setOf(
+                            BlackjackDestination.PREPARATION,
+                            BlackjackDestination.GAME,
+                            BlackjackDestination.RESULT,
+                            BlackjackDestination.TABLE_REVIEW,
+                        )
+                    } else {
+                        currentDestination == destination
+                    }
                     NavigationBarItem(
-                        selected = currentDestination == destination,
+                        selected = selected,
                         onClick = {
-                            navController.navigate(destination.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                            val targetRoute = if (isGameTab) gameTabRoute else destination.route
+                            navController.navigate(targetRoute) {
+                                if (isGameTab) {
+                                    popUpTo(BlackjackDestination.PREPARATION.route)
                                 }
                                 launchSingleTop = true
-                                restoreState = true
                             }
                         },
                         icon = {
@@ -91,28 +101,18 @@ fun BlackjackScaffold(
             }
         },
         floatingActionButton = {
-            if (currentDestination == BlackjackDestination.GAME && primaryGameAction != null) {
+            if (currentDestination == BlackjackDestination.GAME && primaryGameAction == GameAction.HIT) {
                 ExtendedFloatingActionButton(
                     onClick = { onGameAction(primaryGameAction) },
                     icon = {
                         Icon(
-                            imageVector = when (primaryGameAction) {
-                                GameAction.START_ROUND -> Icons.Default.PlayArrow
-                                GameAction.HIT -> Icons.Default.Add
-                                GameAction.STAND, GameAction.SPLIT -> error("Secondary action cannot be the FAB")
-                            },
+                            imageVector = Icons.Default.Add,
                             contentDescription = null,
                         )
                     },
                     text = {
                         Text(
-                            stringResource(
-                                when (primaryGameAction) {
-                                    GameAction.START_ROUND -> R.string.action_start_game
-                                    GameAction.HIT -> R.string.action_hit
-                                    GameAction.STAND, GameAction.SPLIT -> error("Secondary action cannot be the FAB")
-                                },
-                            ),
+                            stringResource(R.string.action_hit),
                         )
                     },
                     modifier = Modifier.testTag(GAME_FAB_TEST_TAG),

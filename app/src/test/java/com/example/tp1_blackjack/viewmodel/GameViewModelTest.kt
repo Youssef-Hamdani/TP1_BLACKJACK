@@ -55,6 +55,8 @@ class GameViewModelTest {
         assertTrue(state.dealerCards.none { it.isFaceDown })
         assertEquals(setOf(GameAction.START_ROUND), state.availableActions)
         assertEquals(HandOutcome.PLAYER_WIN, state.playerHands.single().outcome)
+        assertEquals(50, state.playerHands.single().netChange)
+        assertEquals(50, state.netChange)
     }
 
     @Test
@@ -143,6 +145,8 @@ class GameViewModelTest {
         val completed = viewModel.uiState.value
         assertEquals(GamePhase.COMPLETE, completed.phase)
         assertEquals(listOf(HandOutcome.PLAYER_WIN, HandOutcome.PUSH), completed.playerHands.map { it.outcome })
+        assertEquals(listOf(50, 0), completed.playerHands.map { it.netChange })
+        assertEquals(50, completed.netChange)
         assertEquals(1_050, completed.balance)
         assertEquals(17, completed.dealerScore)
         assertTrue(completed.playerHands.none { it.isActive })
