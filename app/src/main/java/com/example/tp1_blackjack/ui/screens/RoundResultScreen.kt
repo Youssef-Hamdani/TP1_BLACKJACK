@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -132,7 +133,12 @@ private fun ResultHandsAndActions(
             OutlinedButton(
                 onClick = onReviewTable,
                 modifier = Modifier.testTag(RESULT_REVIEW_TABLE_TEST_TAG),
-            ) { Text(stringResource(R.string.action_review_table)) }
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color(0xFF1E1E1E),
+                    contentColor = Color.White
+                ),
+
+                ) { Text(stringResource(R.string.action_review_table)) }
             Button(
                 onClick = onNewRound,
                 modifier = Modifier.testTag(RESULT_NEW_ROUND_TEST_TAG),

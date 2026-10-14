@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -102,6 +103,10 @@ private fun RoundContent(
                 OutlinedButton(
                     onClick = onBackToResult,
                     modifier = Modifier.testTag(REVIEW_TO_RESULT_TEST_TAG),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color(0xFF1E1E1E),
+                        contentColor = Color.White
+                    ),
                 ) { Text(stringResource(R.string.action_back_to_result)) }
                 Button(
                     onClick = onNewRound,
