@@ -225,7 +225,10 @@ private fun DeckCountSelector(
                 OutlinedButton(
                     onClick = { onDeckCountSelected(deckCount) },
                     enabled = enabled,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color(0xFF1E1E1E),
+                        contentColor = Color.White
+                    ),
                     modifier = buttonModifier,
                     content = { label() },
                 )

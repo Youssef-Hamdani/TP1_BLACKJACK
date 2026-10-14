@@ -138,7 +138,14 @@ private fun RoundContent(
                     }
                 }
                 if (GameAction.SPLIT in uiState.availableActions) {
-                    OutlinedButton(onClick = onSplit, modifier = Modifier.testTag(SPLIT_ACTION_TEST_TAG)) {
+                    OutlinedButton(
+                        onClick = onSplit,
+                        modifier = Modifier.testTag(SPLIT_ACTION_TEST_TAG),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color(0xFF1E1E1E),
+                            contentColor = Color.White
+                        )
+                    ) {
                         Text(stringResource(R.string.action_split))
                     }
                 }
