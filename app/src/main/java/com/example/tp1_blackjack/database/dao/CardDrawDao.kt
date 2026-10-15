@@ -16,6 +16,9 @@ interface CardDrawDao {
     @Upsert
     suspend fun saveSnapshot(draws: List<CardDrawEntity>)
 
+    @Query("SELECT MAX(handIndex) FROM card_draws WHERE gameId = :gameId AND owner = 'PLAYER'")
+    suspend fun highestPlayerHandIndex(gameId: String): Int?
+
     @Query("SELECT * FROM card_draws WHERE gameId = :gameId ORDER BY drawOrder")
     suspend fun readForGame(gameId: String): List<CardDrawEntity>
 

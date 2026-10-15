@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.tp1_blackjack.R
 
@@ -14,6 +15,11 @@ enum class BlackjackDestination(
     val icon: ImageVector,
     val showInBottomNavigation: Boolean = false,
 ) {
+    PLAYER_CREATION(
+        route = "player-creation",
+        titleResourceId = R.string.destination_player_creation,
+        icon = Icons.Default.Person,
+    ),
     PREPARATION(
         route = "preparation",
         titleResourceId = R.string.destination_game,

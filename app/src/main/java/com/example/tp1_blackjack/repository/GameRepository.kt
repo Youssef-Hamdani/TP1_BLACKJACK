@@ -41,6 +41,31 @@ class GameRepository(private val database: AppDatabase) {
         it?.let { entity -> Wallet(entity.balance, entity.defaultBet) } ?: Wallet()
     }.distinctUntilChanged()
 
+    /**
+     * Refund the committed stakes from games interrupted by a process restart.
+     * Deleting an unfinished game also cascades to its draws so abandoned
+     * rounds do not distort statistics. Called at startup, not during play.
+     * Recovery is idempotent because removal and refund are one transaction.
+     */
+    suspend fun recoverInterruptedRounds(): Int = database.withTransaction {
+        val unfinished = games.findUnfinished()
+        if (unfinished.isEmpty()) return@withTransaction 0
+        wallet.initialize(WalletEntity())
+        val current = checkNotNull(wallet.read())
+        val refund = unfinished.sumOf { game ->
+            val handCount = if (draws.highestPlayerHandIndex(game.id) == 1) 2 else 1
+            game.initialBet.toLong() * handCount
+        }
+        require(refund <= Int.MAX_VALUE.toLong() - current.balance) {
+            "Interrupted-round refund would overflow the wallet"
+        }
+        unfinished.forEach { game ->
+            check(games.deleteUnfinished(game.id) == 1)
+        }
+        wallet.setBalance(current.balance + refund.toInt())
+        unfinished.size
+    }
+
     suspend fun loadWallet(): Wallet = database.withTransaction {
         wallet.initialize(WalletEntity())
         val saved = checkNotNull(wallet.read())

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.example.tp1_blackjack.database.AppDatabase
 import com.example.tp1_blackjack.repository.GameRepository
+import com.example.tp1_blackjack.repository.PlayerProfileRepository
 
 /** One database and repository per application process, shared by every screen. */
 class BlackjackApplication : Application() {
@@ -12,4 +13,7 @@ class BlackjackApplication : Application() {
     }
 
     val repository: GameRepository by lazy { GameRepository(database) }
+    val playerProfileRepository: PlayerProfileRepository by lazy {
+        PlayerProfileRepository(applicationContext)
+    }
 }

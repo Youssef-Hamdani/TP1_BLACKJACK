@@ -43,6 +43,7 @@ class GameViewModel(
         if (repository != null) {
             viewModelScope.launch {
                 try {
+                    repository.recoverInterruptedRounds()
                     engine.restoreWallet(repository.loadWallet())
                     isStorageReady = true
                 } catch (error: Exception) {

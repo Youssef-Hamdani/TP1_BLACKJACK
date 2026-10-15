@@ -1,5 +1,6 @@
 package com.example.tp1_blackjack.ui.scaffold
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -9,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,6 +34,7 @@ const val GAME_FAB_TEST_TAG = "game-primary-action"
 fun BlackjackScaffold(
     navController: NavHostController,
     balance: Int,
+    playerName: String?,
     primaryGameAction: GameAction?,
     gameTabRoute: String,
     onGameAction: (GameAction) -> Unit,
@@ -44,15 +47,21 @@ fun BlackjackScaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = stringResource(
+                    Column {
+                        Text(stringResource(
                             R.string.screen_title,
                             stringResource(currentDestination.titleResourceId),
-                        ),
-                    )
+                        ))
+                        playerName?.let {
+                            Text(
+                                stringResource(R.string.current_player_name, it),
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    }
                 },
                 actions = {
-                    Text(
+                    if (currentDestination != BlackjackDestination.PLAYER_CREATION) Text(
                         text = pluralStringResource(
                             R.plurals.balance_chips,
                             balance,
@@ -64,7 +73,7 @@ fun BlackjackScaffold(
             )
         },
         bottomBar = {
-            NavigationBar {
+            if (currentDestination != BlackjackDestination.PLAYER_CREATION) NavigationBar {
                 BlackjackDestination.entries.filter { it.showInBottomNavigation }.forEach { destination ->
                     val isGameTab = destination == BlackjackDestination.PREPARATION
                     val selected = if (isGameTab) {
