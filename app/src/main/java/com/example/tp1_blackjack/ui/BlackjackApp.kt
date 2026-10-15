@@ -3,6 +3,7 @@ package com.example.tp1_blackjack.ui
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,16 +20,25 @@ import com.example.tp1_blackjack.ui.navigation.BlackjackDestination
 import com.example.tp1_blackjack.ui.scaffold.BlackjackScaffold
 import com.example.tp1_blackjack.viewmodel.GameViewModel
 import com.example.tp1_blackjack.viewmodel.RecordsViewModel
+import com.example.tp1_blackjack.viewmodel.PlayerProfileViewModel
 import com.example.tp1_blackjack.viewmodel.BlackjackViewModelFactory
 
 @Composable
 fun BlackjackApp(
     gameViewModel: GameViewModel = viewModel(factory = BlackjackViewModelFactory),
     recordsViewModel: RecordsViewModel = viewModel(factory = BlackjackViewModelFactory),
+    playerProfileViewModel: PlayerProfileViewModel = viewModel(factory = BlackjackViewModelFactory),
 ) {
     val navController = rememberNavController()
     val gameUiState by gameViewModel.uiState.collectAsStateWithLifecycle()
     val recordsUiState by recordsViewModel.uiState.collectAsStateWithLifecycle()
+    val playerName by playerProfileViewModel.playerName.collectAsStateWithLifecycle()
+    // Freeze the start destination for this NavHost; creation explicitly navigates
+    // to preparation after saving the name.
+    val initialDestination = remember {
+        if (playerName == null) BlackjackDestination.PLAYER_CREATION.route
+        else BlackjackDestination.PREPARATION.route
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Android may restore the previous NavHost stack after killing the process,
     // but this ViewModel starts with a fresh game. Do not show an empty table.
@@ -76,6 +86,7 @@ fun BlackjackApp(
     BlackjackScaffold(
         navController = navController,
         balance = gameUiState.balance,
+        playerName = playerName,
         primaryGameAction = GameAction.HIT.takeIf {
             !isPresentationBusy && it in gameUiState.availableActions
         },
@@ -84,6 +95,9 @@ fun BlackjackApp(
     ) { contentPadding ->
         BlackjackNavHost(
             navController = navController,
+            initialDestination = initialDestination,
+            playerName = playerName,
+            onCreatePlayer = playerProfileViewModel::createPlayer,
             gameUiState = gameUiState,
             recordsUiState = recordsUiState,
             onGameAction = performGameAction,

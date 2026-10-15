@@ -16,6 +16,8 @@ import androidx.room.Room
 import androidx.lifecycle.ViewModelStore
 import com.example.tp1_blackjack.database.AppDatabase
 import com.example.tp1_blackjack.repository.GameRepository
+import com.example.tp1_blackjack.repository.PlayerProfileRepository
+import com.example.tp1_blackjack.viewmodel.PlayerProfileViewModel
 import com.example.tp1_blackjack.model.cards.*
 import com.example.tp1_blackjack.model.game.*
 import com.example.tp1_blackjack.viewmodel.GameViewModel
@@ -42,6 +44,7 @@ class BlackjackNavigationTest {
     private val store = ViewModelStore()
 
     @Before fun setup() {
+        PlayerProfileRepository(composeRule.activity).saveName("Testeur")
         database = Room.inMemoryDatabaseBuilder(composeRule.activity, AppDatabase::class.java).build()
         val repository = GameRepository(database)
         val source = object : CardSource {
@@ -57,7 +60,10 @@ class BlackjackNavigationTest {
             store.put("game", game)
             store.put("records", records)
         }
-        composeRule.activity.setContent { TP1_BlackJackTheme { BlackjackApp(game, records) } }
+        val profile = PlayerProfileViewModel(PlayerProfileRepository(composeRule.activity))
+        composeRule.activity.setContent {
+            TP1_BlackJackTheme { BlackjackApp(game, records, profile) }
+        }
         composeRule.waitUntil(5_000) { !game.uiState.value.isLoading }
     }
 

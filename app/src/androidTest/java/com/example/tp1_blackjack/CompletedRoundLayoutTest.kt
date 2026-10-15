@@ -27,6 +27,8 @@ import com.example.tp1_blackjack.ui.screens.ROUND_RESULT_SCREEN_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.STAND_ACTION_TEST_TAG
 import com.example.tp1_blackjack.ui.theme.TP1_BlackJackTheme
 import com.example.tp1_blackjack.viewmodel.GameViewModel
+import com.example.tp1_blackjack.viewmodel.PlayerProfileViewModel
+import com.example.tp1_blackjack.repository.PlayerProfileRepository
 import org.junit.Rule
 import org.junit.Test
 
@@ -36,6 +38,9 @@ class CompletedRoundLayoutTest {
 
     @Test
     fun completedRound_keepsResultAndNextRoundControlsVisibleInBothOrientations() {
+        val profileRepo = PlayerProfileRepository(composeRule.activity)
+        profileRepo.saveName("Testeur")
+        val profile = PlayerProfileViewModel(profileRepo)
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         val viewModel = GameViewModel(
             BlackjackEngine(
@@ -52,7 +57,7 @@ class CompletedRoundLayoutTest {
                     Configuration.ORIENTATION_PORTRAIT
             }
             composeRule.activity.setContent {
-                TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel) }
+                TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel, playerProfileViewModel = profile) }
             }
             composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
             waitForEnabledTag(STAND_ACTION_TEST_TAG)
@@ -66,7 +71,7 @@ class CompletedRoundLayoutTest {
             }
             // Rotation recreates MainActivity, so install the same completed state on the new instance.
             composeRule.activity.setContent {
-                TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel) }
+                TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel, playerProfileViewModel = profile) }
             }
             composeRule.onNodeWithTag("destination-preparation").performClick()
             assertCompletedControlsAreVisible()

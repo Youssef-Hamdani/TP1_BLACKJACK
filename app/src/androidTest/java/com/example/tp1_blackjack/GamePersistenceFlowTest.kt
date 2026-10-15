@@ -14,6 +14,7 @@ import com.example.tp1_blackjack.model.cards.*
 import com.example.tp1_blackjack.model.game.*
 import com.example.tp1_blackjack.model.results.*
 import com.example.tp1_blackjack.repository.GameRepository
+import com.example.tp1_blackjack.repository.PlayerProfileRepository
 import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.scaffold.GAME_FAB_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.START_ROUND_TEST_TAG
@@ -40,6 +41,7 @@ class GamePersistenceFlowTest {
     private val store = ViewModelStore()
 
     @Before fun setup() {
+        PlayerProfileRepository(context).saveName("Testeur")
         database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
         repository = GameRepository(database)
     }

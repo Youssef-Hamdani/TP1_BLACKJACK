@@ -1,5 +1,9 @@
 package com.example.tp1_blackjack
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import com.example.tp1_blackjack.repository.PlayerProfileRepository
+import org.junit.Before
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -40,6 +44,11 @@ import org.junit.Test
 import org.junit.Assert.assertEquals
 
 class GameFlowTest {
+    @Before fun registerTestPlayer() {
+        PlayerProfileRepository(ApplicationProvider.getApplicationContext<Context>())
+            .saveName("Testeur")
+    }
+
     @get:Rule
     val composeRule = createComposeRule()
 

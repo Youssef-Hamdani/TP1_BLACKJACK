@@ -16,6 +16,13 @@
         <item quantity="one">%1$d jeton</item>
         <item quantity="other">%1$d jetons</item>
     </plurals>
+    <string name="destination_player_creation">Créer un joueur</string>
+    <string name="player_creation_title">Bienvenue au Blackjack</string>
+    <string name="player_creation_explanation">Entrez votre nom pour commencer. Vous recevrez 1 000 jetons au départ.</string>
+    <string name="player_creation_label">Nom du joueur</string>
+    <string name="player_creation_action">Créer mon joueur</string>
+    <string name="player_creation_error">Impossible d’enregistrer le nom. Réessayez.</string>
+    <string name="current_player_name">Joueur : %1$s</string>
     <string name="destination_game">Jouer</string>
     <string name="destination_history">Historique</string>
     <string name="destination_statistics">Statistiques</string>
