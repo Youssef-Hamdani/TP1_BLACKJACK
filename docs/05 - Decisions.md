@@ -18,6 +18,8 @@ Le professeur ne définit pas tous les détails du Blackjack. DEC-01 à DEC-07 f
 | DEC-12 | Si toutes les mains du joueur dépassent 21, le croupier ne révèle pas sa carte cachée et ne pige pas; la manche se termine immédiatement | Évite un tour sans effet et garde cohérente la définition de carte « observée » | BJ-09, BJ-17, BJ-25 |
 | DEC-13 | Direction visuelle : table de casino originale vue du dessus, feutre vert réaliste avec légère profondeur; ne pas reproduire de mentions incompatibles comme assurance ou paiement 3:2 | Suit la référence visuelle approuvée sans introduire de règles absentes du devoir | BJ-11, BJ-12, BJ-30 |
 
+| DEC-14 | **14 octobre, correctif proposé en branche d'audit :** après un redémarrage qui interrompt une manche, ne pas reprendre les cartes/mains; rembourser une seule fois les mises réellement engagées (deux mises après Split), supprimer la partie inachevée et ses tirages dans une transaction Room | Évite une mise définitivement perdue après mort du processus; prioriser cohérence des jetons et statistiques; remplace le comportement antérieur de solde débité sans partie reprenable | Audit, GameRepository et tests à exécuter avant fusion |
+
 ## Points précisés après le gel
 Les ambiguïtés recensées pendant la planification ont été tranchées par l'étudiant le 13 octobre 2026 dans DEC-08 à DEC-13. Ces choix clarifient l'implémentation sans modifier les cartes, estimations ou sprints de la baseline.
 

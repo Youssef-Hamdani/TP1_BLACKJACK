@@ -1,29 +1,20 @@
 # Product Backlog approuvé v0.1
 
-**Baseline gelée :** `planning/baseline/v0.1_approved_2026-10-13/` — 40 tâches, 30,75 h (estimation), tout `Not Started` au moment de l'approbation.
+**Baseline gelée le 13 octobre 2026 :** 40 tâches, 30,75 h estimées. Le fichier versionné se trouve dans [docs/baseline/Blackjack_Backlog_PROPOSITION_v0.1.csv](baseline/Blackjack_Backlog_PROPOSITION_v0.1.csv). Le gel de la baseline ne préjuge pas du temps réellement consacré aux cartes.
 
-**Trello, source de vérité des statuts courants** : https://trello.com/b/cG4pTP0E/blackjack-android-420-c56-jo
+**Trello (état courant des cartes) :** https://trello.com/b/cG4pTP0E/blackjack-android-420-c56-jo
 
-## Répartition initiale immuable
-
-| Sprint | Date | Cartes | Estimation | Objectif |
+| Sprint initial | Dates prévues | Cartes | Estimation | Objectif |
 |---|---|---:|---:|---|
-| S1 Fondations | 13 octobre | BJ-01 à BJ-14 | 11 h | Socle Android, navigation, modèle, Blackjack simple |
-| S2 Intégration | 14 octobre | BJ-15 à BJ-33 | 14,75 h | Mises, split, Room, flux, stats, UI responsive |
-| S3 Stabilisation | 15 octobre avant 14 h 45 | BJ-34 à BJ-40 | 5 h | Tests, corrections, Git, docs, démo |
+| S1 Fondations | 13 octobre | BJ-01 à BJ-14 | 11 h | Socle Android, règles et UI jouable |
+| S2 Intégration | 14 octobre | BJ-15 à BJ-33 | 14,75 h | Mises, Split, Room, stats, paysage |
+| S3 Stabilisation | 15 octobre avant 14 h 45 | BJ-34 à BJ-40 | 5 h | Recette, correctifs, Git, documents, démo |
 
-**Hors engagement ferme:** BJ-29 = améliorations statistiques conditionnelles. BJ-40 = réserve, non-feature.
+BJ-29 est une amélioration statistique optionnelle; BJ-40 est une réserve.
 
-## Source détaillée (sans recopier des statuts)
-- [Backlog CSV](planning/baseline/v0.1_approved_2026-10-13/Blackjack_Backlog_PROPOSITION.csv)
-- [Backlog Markdown](planning/baseline/v0.1_approved_2026-10-13/Blackjack_Backlog_PROPOSITION.md)
-- [Backlog JSON](planning/baseline/v0.1_approved_2026-10-13/Blackjack_Backlog_PROPOSITION.json)
-- [Manifeste et empreintes SHA-256](planning/baseline/v0.1_approved_2026-10-13/baseline_manifest.json)
+## Suivi
 
-## Politique de suivi
-- Une carte = un identifiant stable `BJ-xx`, estimation, dépendances, critères d'acceptation, références et sprint initial dans la description Trello.
-- Seule la **liste Trello** donne son état en temps réel; déplacer une carte ne change pas son sprint attribué.
-- Toute modification de portée après v0.1 va dans [[09 - Scope Change Log]] (date, motif, avant/après, impact et décision).
-- Conserver la baseline physique non éditée et recueillir les preuves de vérification en revue réelle.
-
-> Charge totale de 30,75 h ambitieuse; ne pas la confondre avec la capacité restante avant l'échéance. Évaluer les écarts honnêtement.
+- Chaque tâche garde son identifiant BJ-xx et son sprint initial.
+- Trello fait foi pour les statuts courants, pas le tableau figé ici.
+- Les évolutions ajoutées après la baseline sont inscrites dans [09 - Scope Change Log](09%20-%20Scope%20Change%20Log.md), sans réécrire l'historique initial.
+- Une tâche n'est dite terminée qu'après vérification effective. Les résultats de tests historiques sont distincts des tests qui doivent être relancés après une modification récente.

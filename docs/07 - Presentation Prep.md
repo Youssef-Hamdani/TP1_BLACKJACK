@@ -55,10 +55,10 @@ Arrêter → `GameScreen` appelle `GameViewModel.onGameAction(STAND)` → `Black
 |---|---|---|---|---|
 | Compose/Scaffold/NavHost | `ui/BlackjackApp.kt`, `ui/scaffold/BlackjackScaffold.kt`, `ui/navigation/BlackjackNavHost.kt`, `ui/screens/GameScreen.kt` | Afficher table, mains et actions contextuelles; naviguer dans une Activity | UI et back stack couplés aux règles | `BlackjackNavigationTest`, `GameFlowTest` Pixel 8 |
 | ViewModel/StateFlow | `viewmodel/GameViewModel.kt`, `viewmodel/GameUiState.kt` | Déléguer jeu/configuration au moteur et projeter un état immuable | UI muterait l'état; instances divergentes | 6 tests `GameViewModelTest`, dont Split/sabot |
-| Blackjack Model | `model/Hand.kt`, `Shoe.kt`, `GameState.kt`, `BlackjackEngine.kt`, `RoundResultResolver.kt` | Scores/As, sabot, phases, actions, dealer et résultats | règles dupliquées dans UI/VM | tests Model inclus dans les 65 tests JVM réussis |
-| Split | `model/GameAction.kt`, `GameState.kt`, `BlackjackEngine.kt`, `ui/screens/GameScreen.kt` | Valider paire/fonds dans Model; afficher action et main active dans Compose | règles copiées dans l'écran ou deux dealers concurrents | 12 tests moteur + parcours Compose Pixel 8 |
-| Nombre de paquets | `model/Shoe.kt`, `GameState.kt`, `BlackjackEngine.kt`; projection VM; sélecteur dans `GameScreen.kt` | Construire 52×N cartes et permettre changement 1/2/4/6 entre manches | changement en cours de manche invaliderait le sabot | tests Shoe/moteur/VM + parcours Compose Pixel 8 |
-| Mise et jetons | `model/Bet.kt`, `model/PayoutCalculator.kt`; état dans `GameState`; projection dans `GameUiState` | Valider 1–100, engager la mise, payer une seule fois et publier le solde | paiement dans Compose/VM serait duplicable et difficile à tester | `BetTest`, `PayoutCalculatorTest`, `BlackjackEngineBalanceTest`, `GameFlowTest` |
+| Blackjack Model | `model/game/Hand.kt`, `model/cards/Shoe.kt`, `model/game/GameState.kt`, `model/game/BlackjackEngine.kt`, `model/results/RoundResultResolver.kt` | Scores/As, sabot, phases, actions, dealer et résultats | règles dupliquées dans UI/VM | tests Model inclus dans les 65 tests JVM réussis |
+| Split | `model/game/GameAction.kt`, `model/game/GameState.kt`, `model/game/BlackjackEngine.kt`, `ui/screens/GameScreen.kt` | Valider paire/fonds dans Model; afficher action et main active dans Compose | règles copiées dans l'écran ou deux dealers concurrents | 12 tests moteur + parcours Compose Pixel 8 |
+| Nombre de paquets | `model/cards/Shoe.kt`, `model/game/GameState.kt`, `model/game/BlackjackEngine.kt`; projection VM; sélecteur dans `ui/screens/PreparationScreen.kt` | Construire 52×N cartes et permettre changement 1/2/4/6 entre manches | changement en cours de manche invaliderait le sabot | tests Shoe/moteur/VM + parcours Compose Pixel 8 |
+| Mise et jetons | `model/betting/Bet.kt`, `model/betting/PayoutCalculator.kt`; état dans `model/game/GameState.kt`; projection dans `GameUiState` | Valider 1–100, engager la mise, payer une seule fois et publier le solde | paiement dans Compose/VM serait duplicable et difficile à tester | `BetTest`, `PayoutCalculatorTest`, `BlackjackEngineBalanceTest`, `GameFlowTest` |
 | Cartes graphiques | `ui/components/CardView.kt`, `TableSurface.kt`; `res/drawable/card_back.xml`; `res/drawable-nodpi/blackjack_table.png` | Représenter faces/dos et table sans réseau | cartes textuelles seules, carte cachée révélée | `CardViewTest`; portrait/paysage inspectés |
 | Repository | `repository/GameRepository.kt` | Frontière unique vers les DAO; conversions et transaction de règlement | VM dépendrait du schéma SQL; résultats/solde pourraient diverger | `GameRepositoryTest` : rollback, retry, historique |
 | DAO et requêtes SQL | `database/dao/GameDao.kt`, `CardDrawDao.kt`, `WalletDao.kt` | Écritures suspend, lectures Flow, comptes/proportions SQL | statistiques officielles dupliquées en mémoire | `GameRepositoryTest` : valeurs/visibilité et émissions |
@@ -100,3 +100,12 @@ Questions BJ-18/BJ-19 : pourquoi Compose consulte-t-il `availableActions` au lie
 - Quelles décisions de règles sont des hypothèses plutôt que des consignes du PDF ?
 
 > Ne pas déclarer un scénario « testé » tant que des commandes, captures ou observations n'ont pas été consignées.
+
+
+## Mise à jour après audit du 14 octobre (non remplacée par des tests)
+
+Le jeu navigue désormais Préparation → Table → Résultat, avec une page facultative « Revoir la table ». L'animation retarde l'affichage du résultat, mais le moteur et la transaction Room calculent/sauvegardent d'abord la manche.
+
+**Nouveau cas à justifier après validation de la PR :** une manche interrompue par mort du processus n'est pas reprise; la branche d'audit rembourse les mises engagées une seule fois dans une transaction Room et efface les cartes d'une manche abandonnée. Expliquer clairement ce compromis et vérifier physiquement sur Pixel 8 avant la présentation.
+
+**Attention :** les précédents chemins `model/*.kt` ne sont plus valides; se référer à `model/cards`, `model/game`, `model/betting` et `model/results`. Les anciens nombres de tests dans cette fiche sont historiques et ne prouvent pas la validation des derniers commits.
