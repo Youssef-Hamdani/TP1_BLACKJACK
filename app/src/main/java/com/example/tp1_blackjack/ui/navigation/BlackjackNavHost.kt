@@ -19,7 +19,6 @@ import com.example.tp1_blackjack.viewmodel.RecordsUiState
 fun BlackjackNavHost(
     navController: NavHostController,
     initialDestination: String,
-    playerName: String?,
     onCreatePlayer: (String) -> Boolean,
     gameUiState: GameUiState,
     recordsUiState: RecordsUiState,

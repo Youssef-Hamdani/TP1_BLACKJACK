@@ -34,7 +34,7 @@ Les preuves de ces exécutions se trouvent dans le compte rendu de travail origi
 
 **Build initial connu :** `clean testDebugUnitTest assembleDebug` avait réussi avec 71 tests JVM au moment de `29a8440`, **pas** après toutes les modifications de navigation/animations.
 
-**Branche d'audit en cours :** `fix/blackjack-audit-20261014` corrige la récupération d'une manche interrompue et la navigation de nouvelle manche; ses nouveaux tests restent à exécuter sur Pixel 8 avant fusion. Aucune nouvelle réussite de compilation n'est déclarée par anticipation.
+**Branche d'audit en cours :** `fix/blackjack-audit-20261014` corrige la récupération d'une manche interrompue et la navigation de nouvelle manche, ajoute une création de joueur locale et un thème fixe; ses nouveaux tests restent à exécuter sur Pixel 8 avant fusion. Aucune nouvelle réussite de compilation n'est déclarée par anticipation.
 
 **Points ouverts :** vérification réelle du build propre après derniers commits, tests d'interruption/navigation/rotation, décision sur le tour du croupier après dépassement, décision éventuelle sur la création du joueur, capture des preuves et répétition chronométrée par l'étudiant. BJ-39 ne peut pas être déclaré achevé tant que la répétition n'a pas eu lieu.
 

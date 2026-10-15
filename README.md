@@ -24,7 +24,7 @@ Vérification locale sous Windows (à exécuter après les changements récents)
 - `model/cards` : valeurs, couleurs, cartes et sabot local.
 - `model/game` : états, règles, tours du joueur et Split.
 - `model/betting` et `model/results` : mises, paiements et résultats.
-- `viewmodel` : état observable `StateFlow`, validation des entrées et coordination des écritures.
+- `viewmodel` : état observable `StateFlow`, validation des entrées et coordination des écritures; profil local du joueur.
 - `repository/GameRepository.kt` : accès transactionnel aux données, entre ViewModel et DAO.
 - `database/dao` et `database/entity` : Room/SQLite, historique, journal des cartes et statistiques SQL.
 - `ui/screens`, `ui/navigation`, `ui/scaffold`, `ui/components` : écrans Compose, navigation, FAB et composants.
@@ -34,6 +34,8 @@ Vérification locale sous Windows (à exécuter après les changements récents)
 Flux principal : Compose → ViewModel → Model pour les règles; ViewModel → Repository → DAO → Room/SQLite pour la persistance. Les statistiques Room remontent par Flow → RecordsViewModel/stateIn → Compose/collectAsStateWithLifecycle.
 
 ## Déroulement
+
+Au premier lancement, un écran de création du joueur enregistre son nom dans les préférences locales de l'application (sans compte en ligne, sans modification du schéma Room et sans remise à zéro du solde existant).
 
 Préparation (mise et sabot) → table de jeu → animation de révélation → résultat → nouvelle manche ou révision de la table. Historique et Statistiques sont accessibles dans la navigation principale.
 

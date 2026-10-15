@@ -96,7 +96,6 @@ fun BlackjackApp(
         BlackjackNavHost(
             navController = navController,
             initialDestination = initialDestination,
-            playerName = playerName,
             onCreatePlayer = playerProfileViewModel::createPlayer,
             gameUiState = gameUiState,
             recordsUiState = recordsUiState,

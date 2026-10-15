@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +54,15 @@ fun PlayerCreationScreen(onCreate: (String) -> Boolean) {
                         onValueChange = { name = it; saveFailed = false },
                         label = { Text(stringResource(R.string.player_creation_label)) },
                         singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedLabelColor = Color.White,
+                            unfocusedLabelColor = Color.White,
+                            focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.65f),
+                            cursorColor = Color.White,
+                        ),
                         modifier = Modifier.fillMaxWidth().testTag(PLAYER_NAME_INPUT_TEST_TAG),
                     )
                     if (saveFailed) {

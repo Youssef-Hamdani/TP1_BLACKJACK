@@ -10,7 +10,7 @@ Ce journal a été **reconstitué a posteriori** le 14 octobre à partir des dem
 | 14 oct. 2026 | Animation et packages du modèle | Affichage final immédiat; modèles à plat | Révélation progressive des cartes et `model/cards`, `game`, `betting`, `results`; commit `60dfb98` | UX et apprentissage du code; tests supplémentaires nécessaires |
 | 14 oct. 2026 | Progression des mains après Split | Passage à la seconde main imparfait | Correction de `PlayerHands.finishActiveHand`, commit `6915b8d` | Bug bloquant constaté puis corrigé |
 | 14 oct. 2026 | Mort du processus pendant une manche | Mise perdue mais manche non reprenable (DEC-11) | **Proposition en branche** `fix/blackjack-audit-20261014` : remboursement transactionnel et suppression de la manche abandonnée; commit `2921dbe` | Correction de cohérence solde/historique; non fusionné et non validé en émulateur |
-| 14 oct. 2026 | Création d'un joueur | Aucun nom obligatoire au démarrage | **Demandée par l'étudiant, non présente dans `main` lors de l'audit** | Feature additionnelle; persistance du profil à concevoir et tester avant livraison |
+| 14 oct. 2026 | Création d'un joueur | Aucun nom obligatoire au démarrage | **Implémentée dans la branche d'audit (non fusionnée / non vérifiée sur émulateur)** | Feature additionnelle; nom enregistré via SharedPreferences; vérifier l'écran et la non-réinitialisation des jetons |
 
 **Interprétations conservées :** voir DEC-01 à DEC-13 dans `05 - Decisions.md`, notamment le choix de ne pas faire jouer le croupier si toutes les mains dépassent 21 (DEC-12). Le professeur peut demander une lecture littérale différente de l'énoncé.
 

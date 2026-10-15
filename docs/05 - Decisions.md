@@ -20,6 +20,8 @@ Le professeur ne définit pas tous les détails du Blackjack. DEC-01 à DEC-07 f
 
 | DEC-14 | **14 octobre, correctif proposé en branche d'audit :** après un redémarrage qui interrompt une manche, ne pas reprendre les cartes/mains; rembourser une seule fois les mises réellement engagées (deux mises après Split), supprimer la partie inachevée et ses tirages dans une transaction Room | Évite une mise définitivement perdue après mort du processus; prioriser cohérence des jetons et statistiques; remplace le comportement antérieur de solde débité sans partie reprenable | Audit, GameRepository et tests à exécuter avant fusion |
 
+| DEC-15 | **14 octobre, extension proposée :** demander un nom au premier lancement et l'enregistrer dans SharedPreferences via `PlayerProfileRepository`, sans intégrer de compte utilisateur dans Room | Le nom est une préférence unique sans relations ni requêtes SQL, tandis que l'historique et les statistiques restent dans Room; capital initial fixe à 1 000 jetons | Écran PlayerCreationScreen et branche d'audit, à tester avant fusion |
+
 ## Points précisés après le gel
 Les ambiguïtés recensées pendant la planification ont été tranchées par l'étudiant le 13 octobre 2026 dans DEC-08 à DEC-13. Ces choix clarifient l'implémentation sans modifier les cartes, estimations ou sprints de la baseline.
 
