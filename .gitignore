@@ -8,6 +8,8 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/deviceManager.xml
 .DS_Store
 /build
 /captures
@@ -15,5 +17,5 @@
 .cxx
 local.properties
 
-# Kept locally as the authoritative assignment reference; do not publish it.
+# Local reference document; it is not part of the submission.
 /420-C56-JO_Projet1_Blackjack Android.pdf
