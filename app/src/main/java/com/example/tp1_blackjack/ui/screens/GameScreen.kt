@@ -48,6 +48,7 @@ import com.example.tp1_blackjack.viewmodel.DisplayCardUiState
 import com.example.tp1_blackjack.viewmodel.GameUiState
 import com.example.tp1_blackjack.viewmodel.PlayerHandUiState
 import kotlinx.coroutines.delay
+import androidx.activity.compose.BackHandler
 
 const val ROUND_CONTENT_TEST_TAG = "round-content"
 const val STAND_ACTION_TEST_TAG = "stand-action"
@@ -162,6 +163,7 @@ private fun rememberTablePresentation(
             onRoundPresentationFinished()
         }
     }
+        onPresentationIdle()
     return presentation
 }
 
@@ -186,6 +188,8 @@ fun GameScreen(
             if (!isReviewMode) latestOnPresentationIdle()
         }
     }
+    // Consume Android back button during active rounds to prevent leaving the game
+    BackHandler(enabled = !isReviewMode, onBack = { /* do nothing */ })
     val presentation = rememberTablePresentation(
         uiState = uiState,
         animateChanges = isPresentationBusy && !isReviewMode,

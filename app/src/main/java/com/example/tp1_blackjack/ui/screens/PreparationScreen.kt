@@ -158,7 +158,7 @@ private fun BetInput(
             Text(stringResource(R.string.storage_write_error), color = Color(0xFFFFB4AB))
         }
         OutlinedTextField(
-            value = uiState.betInput,
+            value = uiState.selectedBet.toString(),
             onValueChange = onBetInputChanged,
             label = { Text(stringResource(R.string.bet_label), color = Color.White) },
             suffix = { Text(stringResource(R.string.chips_suffix), color = Color.White) },
