@@ -15,6 +15,7 @@ import com.example.tp1_blackjack.model.results.*
 import com.example.tp1_blackjack.model.cards.*
 import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.repository.GameRepository
+import com.example.tp1_blackjack.repository.PlayerProfileRepository
 import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.theme.TP1_BlackJackTheme
 import com.example.tp1_blackjack.viewmodel.GameViewModel
@@ -37,6 +38,7 @@ class RecordsFlowTest {
     @Before
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
+        PlayerProfileRepository(context).saveName("Testeur")
         database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
         repository = GameRepository(database)
     }

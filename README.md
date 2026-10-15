@@ -1,33 +1,37 @@
 # TP1 Blackjack Android
 
-Projet du cours 420-C56-JO : Blackjack hors ligne en Kotlin avec Jetpack Compose, ViewModel/StateFlow, Navigation Compose, Room, Flow et coroutines.
+Application locale en Kotlin et Jetpack Compose pour le cours 420-C56-JO.
 
-## Ouvrir et exécuter
+## Démarrer
 
-1. Ouvrir ce dossier dans Android Studio.
-2. Utiliser un Pixel 8 virtuel ou physique.
-3. Synchroniser Gradle, puis lancer la configuration `app`.
+1. Cloner le dépôt et l'ouvrir dans Android Studio.
+2. Synchroniser Gradle avec le SDK Android et un JDK compatibles.
+3. Lancer la configuration \`app\` sur un Pixel 8 en portrait et en paysage.
 
-Validation en ligne de commande sous Windows :
+Vérification locale sous Windows :
 
-```powershell
-.\gradlew.bat testDebugUnitTest connectedDebugAndroidTest assembleDebug lintDebug
-```
+\`\`\`powershell
+.\gradlew.bat clean testDebugUnitTest assembleDebug
+.\gradlew.bat connectedDebugAndroidTest
+.\gradlew.bat lintDebug
+\`\`\`
 
-Le SDK Android reste une configuration locale : `local.properties` n'est volontairement pas versionné.
+Il faut relancer les tests après chaque changement important : la présence de fichiers de test ne prouve pas leur réussite sur le dernier commit.
 
-## Structure utile pour la présentation
+## Architecture
 
-- `model/` : règles Blackjack pures, sabot, mises, Split et calcul des résultats.
-- `viewmodel/` : événements de l'interface, `StateFlow` et coordination des sauvegardes.
-- `repository/GameRepository.kt` : frontière transactionnelle vers les DAO.
-- `database/` : Room, entités, DAO et requêtes SQL réactives.
-- `ui/` : écrans Compose, navigation et collecte lifecycle-aware.
-- `app/schemas/` : schéma Room exporté.
-- `docs/` : backlog approuvé, plan/revue de sprint, décisions et journal de portée.
+- \`model/cards\` : cartes, rangs, couleurs et sabot de 52 × N cartes.
+- \`model/game\` : état, actions, règles et Split.
+- \`model/betting\` et \`model/results\` : mises, paiements, journal des tirages et résultats.
+- \`viewmodel\` : \`StateFlow\`, validation, coordination des sauvegardes et nom du joueur.
+- \`repository\` : transactions vers les DAO et stockage local du nom du joueur.
+- \`database\` : Room, DAO, Entity et statistiques SQL.
+- \`ui\` : Compose, Navigation, Scaffold/FAB, animations et écrans.
 
-Les règles ne sont pas calculées dans Compose et les écrans n'accèdent jamais directement aux DAO.
+Au premier lancement, le joueur choisit un nom enregistré localement. Le capital initial reste de 1 000 jetons. Le parcours est préparation → partie → résultat → nouvelle manche ou revue de la table.
 
-## État vérifié
+**Interruption :** le jeu en cours ne reprend pas après la mort du processus. Au démarrage suivant, les mises engagées sur les manches abandonnées sont remboursées une seule fois et les tirages de ces manches retirés des statistiques, dans une transaction Room.
 
-La recette Pixel 8 couvre portrait/paysage, mises, Hit/Stand, Split, navigation et retour système, résultats, persistance Room, historique et statistiques réactives. Les résultats détaillés et limites sont consignés dans `docs/06 - Sprint Reviews.md`.
+**Documents Scrum :** l'énoncé exige le Product Backlog, les Sprints et les Sprint Reviews. Le dossier \`docs/\` a été retiré de \`main\` au commit \`41c5f2e\`. Ces documents doivent accompagner la remise séparément ou être réintégrés après confirmation.
+
+Cette branche attend une compilation, les tests instrumentés sur Pixel 8 et la décision de fusion.

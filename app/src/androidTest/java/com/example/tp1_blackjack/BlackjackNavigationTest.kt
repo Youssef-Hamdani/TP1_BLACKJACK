@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -15,6 +16,8 @@ import androidx.room.Room
 import androidx.lifecycle.ViewModelStore
 import com.example.tp1_blackjack.database.AppDatabase
 import com.example.tp1_blackjack.repository.GameRepository
+import com.example.tp1_blackjack.repository.PlayerProfileRepository
+import com.example.tp1_blackjack.viewmodel.PlayerProfileViewModel
 import com.example.tp1_blackjack.model.cards.*
 import com.example.tp1_blackjack.model.game.*
 import com.example.tp1_blackjack.viewmodel.GameViewModel
@@ -41,6 +44,7 @@ class BlackjackNavigationTest {
     private val store = ViewModelStore()
 
     @Before fun setup() {
+        PlayerProfileRepository(composeRule.activity).saveName("Testeur")
         database = Room.inMemoryDatabaseBuilder(composeRule.activity, AppDatabase::class.java).build()
         val repository = GameRepository(database)
         val source = object : CardSource {
@@ -56,7 +60,10 @@ class BlackjackNavigationTest {
             store.put("game", game)
             store.put("records", records)
         }
-        composeRule.activity.setContent { TP1_BlackJackTheme { BlackjackApp(game, records) } }
+        val profile = PlayerProfileViewModel(PlayerProfileRepository(composeRule.activity))
+        composeRule.activity.setContent {
+            TP1_BlackJackTheme { BlackjackApp(game, records, profile) }
+        }
         composeRule.waitUntil(5_000) { !game.uiState.value.isLoading }
     }
 
@@ -84,6 +91,11 @@ class BlackjackNavigationTest {
         composeRule.onNodeWithTag(ROUND_CONTENT_TEST_TAG).assertIsDisplayed()
         assertEquals(cardsBeforeNavigation, game.uiState.value.playerHands.single().cards)
         assertEquals(950, game.uiState.value.balance)
+        composeRule.waitUntil(6_000) {
+            runCatching {
+                composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).assertIsEnabled()
+            }.isSuccess
+        }
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).assertIsDisplayed()
         composeRule.onAllNodesWithTag(SPLIT_ACTION_TEST_TAG).assertCountEquals(0)
 
