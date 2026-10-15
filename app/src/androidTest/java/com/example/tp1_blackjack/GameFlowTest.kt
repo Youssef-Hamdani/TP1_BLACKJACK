@@ -16,6 +16,8 @@ import com.example.tp1_blackjack.model.cards.CardSource
 import com.example.tp1_blackjack.model.cards.Rank
 import com.example.tp1_blackjack.model.cards.Suit
 import com.example.tp1_blackjack.model.game.BlackjackEngine
+import com.example.tp1_blackjack.model.game.GamePhase
+import com.example.tp1_blackjack.model.game.PlayerHandStatus
 import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.components.FACE_DOWN_CARD_TEST_TAG
 import com.example.tp1_blackjack.ui.components.FACE_UP_CARD_TEST_TAG
@@ -151,6 +153,49 @@ class GameFlowTest {
         composeRule.onNodeWithText("Résultats partagés").assertIsDisplayed()
         composeRule.onNodeWithText("Main 1 · Score 18 · Vous gagnez · +50 jetons").assertIsDisplayed()
         composeRule.onNodeWithText("Main 2 · Score 17 · Égalité · +0 jetons").assertIsDisplayed()
+    }
+
+    @Test
+    fun splitFirstHandBust_keepsSecondHandActiveUntilItIsPlayed() {
+        val viewModel = GameViewModel(
+            BlackjackEngine(
+                FixedCardSource(
+                    card(Rank.FIVE), card(Rank.TEN), card(Rank.FIVE), card(Rank.SEVEN),
+                    card(Rank.FOUR), card(Rank.SIX), card(Rank.FIVE), card(Rank.FIVE),
+                    card(Rank.TEN), card(Rank.KING),
+                ),
+            ),
+        )
+        composeRule.setContent {
+            TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel) }
+        }
+
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
+        waitForEnabledTag(SPLIT_ACTION_TEST_TAG)
+        composeRule.onNodeWithTag(SPLIT_ACTION_TEST_TAG).performClick()
+        repeat(3) {
+            waitForEnabledTag(GAME_FAB_TEST_TAG)
+            composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        }
+        waitForEnabledTag(GAME_FAB_TEST_TAG)
+
+        val afterFirstHandBust = viewModel.uiState.value
+        assertEquals(GamePhase.PLAYER_TURN, afterFirstHandBust.phase)
+        assertEquals(PlayerHandStatus.BUST, afterFirstHandBust.playerHands[0].status)
+        assertEquals(29, afterFirstHandBust.playerHands[0].score)
+        assertEquals(PlayerHandStatus.ACTIVE, afterFirstHandBust.playerHands[1].status)
+        assertEquals(11, afterFirstHandBust.playerHands[1].score)
+        composeRule.onAllNodesWithTag(ACTIVE_HAND_TEST_TAG_PREFIX + 1).assertCountEquals(0)
+        composeRule.onNodeWithTag(ACTIVE_HAND_TEST_TAG_PREFIX + 2).assertIsDisplayed()
+        composeRule.onAllNodesWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertCountEquals(0)
+
+        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        waitForEnabledTag(STAND_ACTION_TEST_TAG)
+        composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performClick()
+        waitForTag(ROUND_RESULT_SCREEN_TEST_TAG)
+
+        assertEquals(GamePhase.COMPLETE, viewModel.uiState.value.phase)
+        assertEquals(21, viewModel.uiState.value.playerHands[1].score)
     }
 
     @Test

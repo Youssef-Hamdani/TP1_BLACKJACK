@@ -132,51 +132,33 @@ class BlackjackEngine(
         state.requireAction(GameAction.HIT)
         val currentHandState = state.playerHands.activeHand
         val updatedHand = currentHandState.hand.add(drawCard(CardOwner.PLAYER, state.playerHands.activeHandIndex))
-        val updatedHandState = currentHandState.copy(
-            hand = updatedHand,
-            status = if (updatedHand.isBust) PlayerHandStatus.BUST else PlayerHandStatus.ACTIVE,
-        )
 
         state = state.copy(
-            playerHands = state.playerHands.replaceActiveHand(updatedHandState),
+            playerHands = state.playerHands.replaceActiveHand(currentHandState.copy(hand = updatedHand)),
         )
 
-        if (updatedHandState.status == PlayerHandStatus.BUST) {
-            finishCurrentPlayerHand()
+        if (updatedHand.isBust) {
+            finishActivePlayerHand(PlayerHandStatus.BUST)
         }
         return state
     }
 
     fun stand(): GameState {
         state.requireAction(GameAction.STAND)
-        state = state.copy(
-            playerHands = state.playerHands.replaceActiveHand(
-                state.playerHands.activeHand.copy(status = PlayerHandStatus.STOOD),
-            ),
-        )
-        finishCurrentPlayerHand()
+        finishActivePlayerHand(PlayerHandStatus.STOOD)
         return state
     }
 
-    private fun finishCurrentPlayerHand() {
-        val currentIndex = state.playerHands.activeHandIndex
-        val nextIndex = state.playerHands.hands.indices
-            .drop(currentIndex + 1)
-            .firstOrNull { index ->
-                state.playerHands.hands[index].status == PlayerHandStatus.ACTIVE
-            }
-
-        if (nextIndex != null) {
-            state = state.copy(
-                playerHands = state.playerHands.copy(activeHandIndex = nextIndex),
-            )
-            return
-        }
-
-        playDealerTurn()
+    private fun finishActivePlayerHand(status: PlayerHandStatus) {
+        val playerHands = state.playerHands.finishActiveHand(status)
+        state = state.copy(playerHands = playerHands)
+        if (!playerHands.hasUnfinishedHand) playDealerTurn()
     }
 
     private fun playDealerTurn() {
+        check(!state.playerHands.hasUnfinishedHand) {
+            "Dealer turn cannot start while a player hand is unfinished"
+        }
         val allPlayerHandsBust = state.playerHands.hands.all {
             it.status == PlayerHandStatus.BUST
         }

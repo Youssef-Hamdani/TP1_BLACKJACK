@@ -159,6 +159,42 @@ class BlackjackEngineSplitTest {
     }
 
     @Test
+    fun repeatedHitsBustFirstFiveHand_secondHandRemainsPlayableAndSettlesIndependently() {
+        // Split hands: 5+4 and 5+6. Main 1 then receives 5, 5, 10 and busts at 29.
+        val source = FixedCardSource(
+            Rank.FIVE, Rank.TEN, Rank.FIVE, Rank.SEVEN,
+            Rank.FOUR, Rank.SIX, Rank.FIVE, Rank.FIVE, Rank.TEN, Rank.KING,
+        )
+        val engine = BlackjackEngine(source)
+        engine.startRound()
+        engine.split()
+
+        engine.hit()
+        engine.hit()
+        val afterFirstHandBust = engine.hit()
+
+        assertEquals(GamePhase.PLAYER_TURN, afterFirstHandBust.phase)
+        assertEquals(1, afterFirstHandBust.playerHands.activeHandIndex)
+        assertEquals(29, afterFirstHandBust.playerHands.hands[0].hand.score)
+        assertEquals(PlayerHandStatus.BUST, afterFirstHandBust.playerHands.hands[0].status)
+        assertEquals(11, afterFirstHandBust.playerHands.hands[1].hand.score)
+        assertEquals(PlayerHandStatus.ACTIVE, afterFirstHandBust.playerHands.hands[1].status)
+        assertEquals(setOf(GameAction.HIT, GameAction.STAND), afterFirstHandBust.availableActions)
+        assertTrue(afterFirstHandBust.outcomes.isEmpty())
+        assertFalse(afterFirstHandBust.isDealerHoleCardRevealed)
+        assertEquals(2, afterFirstHandBust.dealerHand.cards.size)
+
+        val secondHandAtTwentyOne = engine.hit()
+        assertEquals(21, secondHandAtTwentyOne.playerHands.activeHand.hand.score)
+        assertEquals(GamePhase.PLAYER_TURN, secondHandAtTwentyOne.phase)
+
+        val completed = engine.stand()
+        assertEquals(GamePhase.COMPLETE, completed.phase)
+        assertEquals(listOf(HandOutcome.DEALER_WIN, HandOutcome.PLAYER_WIN), completed.outcomes)
+        assertEquals(1_000, completed.balance)
+    }
+
+    @Test
     fun bothHandsBust_dealerNeitherRevealsNorDraws() {
         val source = FixedCardSource(
             Rank.EIGHT, Rank.FIVE, Rank.EIGHT, Rank.SIX,
