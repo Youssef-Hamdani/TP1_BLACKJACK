@@ -14,4 +14,8 @@ val BlackjackViewModelFactory = viewModelFactory {
         val app = checkNotNull(this[APPLICATION_KEY]) as BlackjackApplication
         RecordsViewModel(app.repository)
     }
+    initializer {
+        val app = checkNotNull(this[APPLICATION_KEY]) as BlackjackApplication
+        PlayerProfileViewModel(app.playerProfileRepository)
+    }
 }
