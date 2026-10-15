@@ -1,4 +1,4 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.cards
 
 enum class Rank(
     val blackjackValue: Int,

@@ -28,9 +28,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.tp1_blackjack.R
-import com.example.tp1_blackjack.model.Card
-import com.example.tp1_blackjack.model.Rank
-import com.example.tp1_blackjack.model.Suit
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.cards.Rank
+import com.example.tp1_blackjack.model.cards.Suit
 
 const val FACE_UP_CARD_TEST_TAG = "playing-card-face"
 const val FACE_DOWN_CARD_TEST_TAG = "playing-card-back"

@@ -2,8 +2,8 @@ package com.example.tp1_blackjack.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tp1_blackjack.model.CardValueStats
-import com.example.tp1_blackjack.model.GameHistoryEntry
+import com.example.tp1_blackjack.model.results.CardValueStats
+import com.example.tp1_blackjack.model.results.GameHistoryEntry
 import com.example.tp1_blackjack.repository.GameRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted

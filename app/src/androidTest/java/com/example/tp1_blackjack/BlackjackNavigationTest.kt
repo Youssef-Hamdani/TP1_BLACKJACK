@@ -15,7 +15,8 @@ import androidx.room.Room
 import androidx.lifecycle.ViewModelStore
 import com.example.tp1_blackjack.database.AppDatabase
 import com.example.tp1_blackjack.repository.GameRepository
-import com.example.tp1_blackjack.model.*
+import com.example.tp1_blackjack.model.cards.*
+import com.example.tp1_blackjack.model.game.*
 import com.example.tp1_blackjack.viewmodel.GameViewModel
 import com.example.tp1_blackjack.viewmodel.RecordsViewModel
 import com.example.tp1_blackjack.ui.BlackjackApp

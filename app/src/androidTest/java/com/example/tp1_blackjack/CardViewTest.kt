@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import com.example.tp1_blackjack.model.Card
-import com.example.tp1_blackjack.model.Rank
-import com.example.tp1_blackjack.model.Suit
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.cards.Rank
+import com.example.tp1_blackjack.model.cards.Suit
 import com.example.tp1_blackjack.ui.components.CardView
 import com.example.tp1_blackjack.ui.theme.TP1_BlackJackTheme
 import org.junit.Rule

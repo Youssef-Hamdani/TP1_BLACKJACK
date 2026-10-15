@@ -4,16 +4,18 @@ import android.app.UiAutomation
 import android.content.res.Configuration
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.tp1_blackjack.model.BlackjackEngine
-import com.example.tp1_blackjack.model.Card
-import com.example.tp1_blackjack.model.CardSource
-import com.example.tp1_blackjack.model.Rank
-import com.example.tp1_blackjack.model.Suit
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.cards.CardSource
+import com.example.tp1_blackjack.model.cards.Rank
+import com.example.tp1_blackjack.model.cards.Suit
+import com.example.tp1_blackjack.model.game.BlackjackEngine
 import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.screens.BET_INPUT_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.START_ROUND_TEST_TAG
@@ -53,6 +55,7 @@ class CompletedRoundLayoutTest {
                 TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel) }
             }
             composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
+            waitForEnabledTag(STAND_ACTION_TEST_TAG)
             composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performClick()
             assertCompletedControlsAreVisible()
 
@@ -80,9 +83,19 @@ class CompletedRoundLayoutTest {
     }
 
     private fun assertCompletedControlsAreVisible() {
+        composeRule.waitUntil(8_000) {
+            composeRule.onAllNodesWithTag(ROUND_RESULT_SCREEN_TEST_TAG)
+                .fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.onNodeWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(RESULT_NEW_ROUND_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(RESULT_REVIEW_TABLE_TEST_TAG).assertIsDisplayed()
+    }
+
+    private fun waitForEnabledTag(tag: String) {
+        composeRule.waitUntil(5_000) {
+            runCatching { composeRule.onNodeWithTag(tag).assertIsEnabled() }.isSuccess
+        }
     }
 
     private fun card(rank: Rank) = Card(rank, Suit.CLUBS)

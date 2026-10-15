@@ -10,7 +10,9 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.tp1_blackjack.database.AppDatabase
-import com.example.tp1_blackjack.model.*
+import com.example.tp1_blackjack.model.cards.*
+import com.example.tp1_blackjack.model.game.*
+import com.example.tp1_blackjack.model.results.*
 import com.example.tp1_blackjack.repository.GameRepository
 import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.scaffold.GAME_FAB_TEST_TAG
@@ -56,8 +58,10 @@ class GamePersistenceFlowTest {
         waitForText("3 cartes observées")
         composeRule.onNodeWithText(context.getString(R.string.rank_ace)).assertIsDisplayed()
         composeRule.onNodeWithTag("destination-preparation").performClick()
+        waitForTag(GAME_FAB_TEST_TAG)
         composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
         awaitSaved(game)
+        waitForEnabledTag(STAND_ACTION_TEST_TAG)
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performClick()
         awaitSaved(game)
         assertEquals(GamePhase.COMPLETE, game.uiState.value.phase)
@@ -100,11 +104,14 @@ class GamePersistenceFlowTest {
         val game = showGame(Rank.EIGHT, Rank.TEN, Rank.EIGHT, Rank.SEVEN, Rank.TEN, Rank.NINE)
         composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         awaitSaved(game)
+        waitForEnabledTag(SPLIT_ACTION_TEST_TAG)
         composeRule.onNodeWithTag(SPLIT_ACTION_TEST_TAG).performScrollTo().performClick()
         awaitSaved(game)
         assertEquals(900, runBlocking { repository.loadWallet() }.balance)
+        waitForEnabledTag(STAND_ACTION_TEST_TAG)
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performScrollTo().performClick()
         awaitSaved(game)
+        waitForEnabledTag(STAND_ACTION_TEST_TAG)
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performScrollTo().performClick()
         awaitSaved(game)
         val entry = runBlocking { repository.history.first().single() }
@@ -127,6 +134,7 @@ class GamePersistenceFlowTest {
         val game = showGame(Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX, Rank.KING)
         composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         awaitSaved(game)
+        waitForTag(GAME_FAB_TEST_TAG)
         database.openHelper.writableDatabase.execSQL("""
             CREATE TRIGGER fail_round BEFORE UPDATE OF balance ON wallet
             BEGIN SELECT RAISE(ABORT, 'Test failure'); END
@@ -142,6 +150,7 @@ class GamePersistenceFlowTest {
         database.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_round")
         composeRule.onNodeWithTag("retry-save").performClick()
         awaitSaved(game)
+        waitForTag(ROUND_RESULT_SCREEN_TEST_TAG)
         composeRule.onNodeWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertIsDisplayed()
         val entry = runBlocking { repository.history.first().single() }
         val cards = runBlocking { repository.readDraws(entry.game.id) }
@@ -242,5 +251,17 @@ class GamePersistenceFlowTest {
 
     private fun waitForText(text: String) {
         composeRule.waitUntil(5_000) { composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    private fun waitForTag(tag: String) {
+        composeRule.waitUntil(8_000) {
+            composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    private fun waitForEnabledTag(tag: String) {
+        composeRule.waitUntil(5_000) {
+            runCatching { composeRule.onNodeWithTag(tag).assertIsEnabled() }.isSuccess
+        }
     }
 }

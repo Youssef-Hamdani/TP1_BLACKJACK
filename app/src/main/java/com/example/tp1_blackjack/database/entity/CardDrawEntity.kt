@@ -2,9 +2,9 @@ package com.example.tp1_blackjack.database.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.example.tp1_blackjack.model.CardOwner
-import com.example.tp1_blackjack.model.Rank
-import com.example.tp1_blackjack.model.Suit
+import com.example.tp1_blackjack.model.results.CardOwner
+import com.example.tp1_blackjack.model.cards.Rank
+import com.example.tp1_blackjack.model.cards.Suit
 
 @Entity(
     tableName = "card_draws",

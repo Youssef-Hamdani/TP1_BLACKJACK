@@ -1,10 +1,10 @@
 package com.example.tp1_blackjack.viewmodel
 
-import com.example.tp1_blackjack.model.Card
-import com.example.tp1_blackjack.model.GameAction
-import com.example.tp1_blackjack.model.GamePhase
-import com.example.tp1_blackjack.model.HandOutcome
-import com.example.tp1_blackjack.model.PlayerHandStatus
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.game.GameAction
+import com.example.tp1_blackjack.model.game.GamePhase
+import com.example.tp1_blackjack.model.game.PlayerHandStatus
+import com.example.tp1_blackjack.model.results.HandOutcome
 
 data class DisplayCardUiState(
     val card: Card?,

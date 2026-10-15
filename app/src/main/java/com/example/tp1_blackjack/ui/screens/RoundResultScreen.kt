@@ -28,8 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.tp1_blackjack.R
-import com.example.tp1_blackjack.model.HandOutcome
-import com.example.tp1_blackjack.model.PlayerHandStatus
+import com.example.tp1_blackjack.model.game.PlayerHandStatus
+import com.example.tp1_blackjack.model.results.HandOutcome
 import com.example.tp1_blackjack.ui.components.TableSurface
 import com.example.tp1_blackjack.viewmodel.GameUiState
 import com.example.tp1_blackjack.viewmodel.PlayerHandUiState

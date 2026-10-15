@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.tp1_blackjack.model.GameAction
+import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.ui.screens.GameScreen
 import com.example.tp1_blackjack.ui.screens.HistoryScreen
 import com.example.tp1_blackjack.ui.screens.PreparationScreen
@@ -22,6 +22,9 @@ fun BlackjackNavHost(
     onGameAction: (GameAction) -> Unit,
     onBetInputChanged: (String) -> Unit,
     onDeckCountSelected: (Int) -> Unit,
+    isPresentationBusy: Boolean,
+    onPresentationIdle: () -> Unit,
+    onResultReady: () -> Unit,
     modifier: Modifier = Modifier,
     onRetrySave: () -> Unit = {},
 ) {
@@ -39,6 +42,7 @@ fun BlackjackNavHost(
                     onGameAction(GameAction.START_ROUND)
                     navController.navigate(BlackjackDestination.GAME.route) { launchSingleTop = true }
                 },
+                isPresentationBusy = isPresentationBusy,
             )
         }
         composable(BlackjackDestination.GAME.route) {
@@ -46,6 +50,12 @@ fun BlackjackNavHost(
                 uiState = gameUiState,
                 onGameAction = onGameAction,
                 onRetrySave = onRetrySave,
+                isPresentationBusy = isPresentationBusy,
+                onPresentationIdle = onPresentationIdle,
+                onRoundPresentationFinished = {
+                    onResultReady()
+                    navController.navigate(BlackjackDestination.RESULT.route) { launchSingleTop = true }
+                },
             )
         }
         composable(BlackjackDestination.RESULT.route) {

@@ -1,4 +1,4 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.cards
 
 import kotlin.random.Random
 

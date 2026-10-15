@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tp1_blackjack.R
-import com.example.tp1_blackjack.model.GameAction
+import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.ui.navigation.BlackjackDestination
 
 const val GAME_FAB_TEST_TAG = "game-primary-action"

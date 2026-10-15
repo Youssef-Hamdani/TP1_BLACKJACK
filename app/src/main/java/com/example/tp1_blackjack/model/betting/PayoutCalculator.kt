@@ -1,4 +1,6 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.betting
+
+import com.example.tp1_blackjack.model.results.HandOutcome
 
 object PayoutCalculator {
     fun grossPayout(

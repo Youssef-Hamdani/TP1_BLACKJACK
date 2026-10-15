@@ -1,4 +1,14 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.game
+
+import com.example.tp1_blackjack.model.betting.Bet
+import com.example.tp1_blackjack.model.betting.PayoutCalculator
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.cards.CardSource
+import com.example.tp1_blackjack.model.cards.Shoe
+import com.example.tp1_blackjack.model.results.CardOwner
+import com.example.tp1_blackjack.model.results.DrawnCard
+import com.example.tp1_blackjack.model.results.RoundResultResolver
+import com.example.tp1_blackjack.model.results.Wallet
 
 class BlackjackEngine(
     private var cardSource: CardSource = Shoe(),

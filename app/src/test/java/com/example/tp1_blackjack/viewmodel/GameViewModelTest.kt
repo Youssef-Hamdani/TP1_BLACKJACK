@@ -1,13 +1,13 @@
 package com.example.tp1_blackjack.viewmodel
 
-import com.example.tp1_blackjack.model.BlackjackEngine
-import com.example.tp1_blackjack.model.Card
-import com.example.tp1_blackjack.model.CardSource
-import com.example.tp1_blackjack.model.GameAction
-import com.example.tp1_blackjack.model.GamePhase
-import com.example.tp1_blackjack.model.HandOutcome
-import com.example.tp1_blackjack.model.Rank
-import com.example.tp1_blackjack.model.Suit
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.cards.CardSource
+import com.example.tp1_blackjack.model.cards.Rank
+import com.example.tp1_blackjack.model.cards.Suit
+import com.example.tp1_blackjack.model.game.BlackjackEngine
+import com.example.tp1_blackjack.model.game.GameAction
+import com.example.tp1_blackjack.model.game.GamePhase
+import com.example.tp1_blackjack.model.results.HandOutcome
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows

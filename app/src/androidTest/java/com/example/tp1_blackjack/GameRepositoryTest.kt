@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.tp1_blackjack.database.AppDatabase
-import com.example.tp1_blackjack.model.*
+import com.example.tp1_blackjack.model.betting.*
+import com.example.tp1_blackjack.model.cards.*
+import com.example.tp1_blackjack.model.game.*
+import com.example.tp1_blackjack.model.results.*
 import com.example.tp1_blackjack.repository.GameRepository
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async

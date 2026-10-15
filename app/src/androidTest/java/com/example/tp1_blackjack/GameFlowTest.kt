@@ -11,13 +11,14 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
-import com.example.tp1_blackjack.model.BlackjackEngine
-import com.example.tp1_blackjack.model.Card
-import com.example.tp1_blackjack.model.CardSource
-import com.example.tp1_blackjack.model.Rank
-import com.example.tp1_blackjack.model.Suit
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.cards.CardSource
+import com.example.tp1_blackjack.model.cards.Rank
+import com.example.tp1_blackjack.model.cards.Suit
+import com.example.tp1_blackjack.model.game.BlackjackEngine
 import com.example.tp1_blackjack.ui.BlackjackApp
 import com.example.tp1_blackjack.ui.components.FACE_DOWN_CARD_TEST_TAG
+import com.example.tp1_blackjack.ui.components.FACE_UP_CARD_TEST_TAG
 import com.example.tp1_blackjack.ui.scaffold.GAME_FAB_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.STAND_ACTION_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.BET_INPUT_TEST_TAG
@@ -64,6 +65,9 @@ class GameFlowTest {
         composeRule.onNodeWithText("Croupier · carte cachée").assertIsDisplayed()
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).assertIsDisplayed().performClick()
 
+        composeRule.onNodeWithTag(FACE_DOWN_CARD_TEST_TAG).assertIsDisplayed()
+        composeRule.onAllNodesWithTag(STAND_ACTION_TEST_TAG).assertCountEquals(0)
+        waitForTag(ROUND_RESULT_SCREEN_TEST_TAG)
         composeRule.onAllNodesWithTag(FACE_DOWN_CARD_TEST_TAG).assertCountEquals(0)
         composeRule.onNodeWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithText("Victoire !").assertIsDisplayed()
@@ -75,6 +79,7 @@ class GameFlowTest {
         composeRule.onNodeWithTag(REVIEW_TO_RESULT_TEST_TAG).performClick()
         composeRule.onNodeWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(RESULT_NEW_ROUND_TEST_TAG).performClick()
+        composeRule.onNodeWithText("Prêt à commencer un nouveau match ?").assertIsDisplayed()
         composeRule.onNodeWithTag(START_ROUND_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(BET_INPUT_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(DECK_COUNT_OPTION_TEST_TAG_PREFIX + 1).assertIsDisplayed()
@@ -136,11 +141,13 @@ class GameFlowTest {
         composeRule.onAllNodesWithTag(SPLIT_ACTION_TEST_TAG).assertCountEquals(0)
         composeRule.onNodeWithTag(ACTIVE_HAND_TEST_TAG_PREFIX + 1).assertIsDisplayed()
         composeRule.onAllNodesWithTag(ACTIVE_HAND_TEST_TAG_PREFIX + 2).assertCountEquals(0)
+        waitForEnabledTag(STAND_ACTION_TEST_TAG)
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performClick()
         composeRule.onAllNodesWithTag(ACTIVE_HAND_TEST_TAG_PREFIX + 1).assertCountEquals(0)
         composeRule.onNodeWithTag(ACTIVE_HAND_TEST_TAG_PREFIX + 2).assertIsDisplayed()
+        waitForEnabledTag(STAND_ACTION_TEST_TAG)
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performClick()
-        composeRule.onNodeWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertIsDisplayed()
+        waitForTag(ROUND_RESULT_SCREEN_TEST_TAG)
         composeRule.onNodeWithText("Résultats partagés").assertIsDisplayed()
         composeRule.onNodeWithText("Main 1 · Score 18 · Vous gagnez · +50 jetons").assertIsDisplayed()
         composeRule.onNodeWithText("Main 2 · Score 17 · Égalité · +0 jetons").assertIsDisplayed()
@@ -176,6 +183,64 @@ class GameFlowTest {
         composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         composeRule.onAllNodesWithTag(DECK_COUNT_OPTION_TEST_TAG_PREFIX + 1).assertCountEquals(0)
         composeRule.onAllNodesWithTag(DECK_COUNT_OPTION_TEST_TAG_PREFIX + 4).assertCountEquals(0)
+    }
+
+    @Test
+    fun hit_revealsNewCardBeforeAllowingAnotherAction() {
+        val viewModel = GameViewModel(
+            BlackjackEngine(
+                FixedCardSource(
+                    card(Rank.FIVE), card(Rank.TEN), card(Rank.SIX), card(Rank.SEVEN),
+                    card(Rank.FOUR),
+                ),
+            ),
+        )
+        composeRule.setContent {
+            TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel) }
+        }
+
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
+        waitForTag(GAME_FAB_TEST_TAG)
+        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        composeRule.onAllNodesWithTag(GAME_FAB_TEST_TAG).assertCountEquals(0)
+        composeRule.waitUntil(5_000) {
+            composeRule.onAllNodesWithTag(FACE_UP_CARD_TEST_TAG).fetchSemanticsNodes().size == 4
+        }
+        waitForTag(GAME_FAB_TEST_TAG)
+        composeRule.onNodeWithText("Joueur · 15").assertIsDisplayed()
+    }
+
+    @Test
+    fun naturalBlackjack_showsTableTransitionBeforeResult() {
+        val viewModel = GameViewModel(
+            BlackjackEngine(
+                FixedCardSource(
+                    card(Rank.ACE), card(Rank.FIVE), card(Rank.KING), card(Rank.SIX),
+                ),
+            ),
+        )
+        composeRule.setContent {
+            TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel) }
+        }
+
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
+        composeRule.onAllNodesWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertCountEquals(0)
+        composeRule.onNodeWithTag(ROUND_CONTENT_TEST_TAG).assertIsDisplayed()
+        waitForTag(ROUND_RESULT_SCREEN_TEST_TAG)
+        composeRule.onNodeWithText("Victoire !").assertIsDisplayed()
+        composeRule.onNodeWithText("Vous avez obtenu un Blackjack naturel.").assertIsDisplayed()
+    }
+
+    private fun waitForTag(tag: String) {
+        composeRule.waitUntil(8_000) {
+            composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    private fun waitForEnabledTag(tag: String) {
+        composeRule.waitUntil(5_000) {
+            runCatching { composeRule.onNodeWithTag(tag).assertIsEnabled() }.isSuccess
+        }
     }
 
     private fun card(rank: Rank): Card = Card(rank, Suit.CLUBS)

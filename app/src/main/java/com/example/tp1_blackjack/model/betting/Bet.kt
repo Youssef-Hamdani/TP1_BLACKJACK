@@ -1,4 +1,4 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.betting
 
 @JvmInline
 value class Bet private constructor(val amount: Int) {

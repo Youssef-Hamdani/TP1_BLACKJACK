@@ -2,7 +2,7 @@ package com.example.tp1_blackjack.database.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.example.tp1_blackjack.model.HandOutcome
+import com.example.tp1_blackjack.model.results.HandOutcome
 
 @Entity(
     tableName = "hand_results",

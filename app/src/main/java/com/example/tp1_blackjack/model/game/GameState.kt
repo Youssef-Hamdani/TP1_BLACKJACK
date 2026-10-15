@@ -1,4 +1,8 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.game
+
+import com.example.tp1_blackjack.model.betting.Bet
+import com.example.tp1_blackjack.model.results.DrawnCard
+import com.example.tp1_blackjack.model.results.HandOutcome
 
 data class GameState(
     val phase: GamePhase = GamePhase.AWAITING_START,

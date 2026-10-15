@@ -28,7 +28,9 @@
     <string name="action_new_round">Nouvelle manche</string>
     <string name="action_review_table">Revoir la table</string>
     <string name="action_back_to_result">Retour au résultat</string>
-    <string name="game_placeholder_title">Prêt pour une partie?</string>
+    <string name="game_placeholder_title">Prêt à commencer un nouveau match ?</string>
+    <string name="player_hand_label">Joueur</string>
+    <string name="player_numbered_hand_label">Main %1$d</string>
     <string name="round_complete_title">Manche terminée</string>
     <string name="next_round_title">Nouvelle manche</string>
     <string name="numbered_hand_result">Main %1$d · %2$s</string>

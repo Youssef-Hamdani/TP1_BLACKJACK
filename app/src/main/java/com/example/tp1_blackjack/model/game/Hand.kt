@@ -1,4 +1,7 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.game
+
+import com.example.tp1_blackjack.model.cards.Card
+import com.example.tp1_blackjack.model.cards.Rank
 
 data class Hand(
     val cards: List<Card> = emptyList(),

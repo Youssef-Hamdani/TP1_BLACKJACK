@@ -37,7 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.tp1_blackjack.R
-import com.example.tp1_blackjack.model.GameAction
+import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.ui.components.TableSurface
 import com.example.tp1_blackjack.viewmodel.BetInputError
 import com.example.tp1_blackjack.viewmodel.GameUiState
@@ -53,6 +53,7 @@ fun PreparationScreen(
     onBetInputChanged: (String) -> Unit,
     onDeckCountSelected: (Int) -> Unit,
     onStart: () -> Unit,
+    isPresentationBusy: Boolean,
 ) {
     TableSurface(modifier = Modifier.fillMaxSize()) {
         when {
@@ -85,6 +86,7 @@ fun PreparationScreen(
                     onBetInputChanged = onBetInputChanged,
                     onDeckCountSelected = onDeckCountSelected,
                     onStart = onStart,
+                isPresentationBusy = isPresentationBusy,
                     modifier = Modifier.padding(top = 16.dp),
                 )
             }
@@ -98,6 +100,7 @@ private fun BetEditor(
     onBetInputChanged: (String) -> Unit,
     onDeckCountSelected: (Int) -> Unit,
     onStart: () -> Unit,
+    isPresentationBusy: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -121,7 +124,7 @@ private fun BetEditor(
                         uiState.canSelectDeckCount,
                         onDeckCountSelected,
                     )
-                    StartButton(uiState, onStart)
+                    StartButton(uiState, isPresentationBusy, onStart)
                 }
             }
         } else {
@@ -133,7 +136,7 @@ private fun BetEditor(
                     uiState.canSelectDeckCount,
                     onDeckCountSelected,
                 )
-                StartButton(uiState, onStart)
+                StartButton(uiState, isPresentationBusy, onStart)
             }
         }
     }
@@ -182,10 +185,14 @@ private fun BetInput(
 }
 
 @Composable
-private fun StartButton(uiState: GameUiState, onStart: () -> Unit) {
+private fun StartButton(
+    uiState: GameUiState,
+    isPresentationBusy: Boolean,
+    onStart: () -> Unit,
+) {
     Button(
         onClick = onStart,
-        enabled = GameAction.START_ROUND in uiState.availableActions,
+        enabled = !isPresentationBusy && GameAction.START_ROUND in uiState.availableActions,
         modifier = Modifier.testTag(START_ROUND_TEST_TAG),
     ) {
         Text(stringResource(R.string.action_start_game))

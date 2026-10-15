@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.tp1_blackjack.database.entity.CardDrawEntity
-import com.example.tp1_blackjack.model.CardValueStats
+import com.example.tp1_blackjack.model.results.CardValueStats
 import kotlinx.coroutines.flow.Flow
 
 @Dao

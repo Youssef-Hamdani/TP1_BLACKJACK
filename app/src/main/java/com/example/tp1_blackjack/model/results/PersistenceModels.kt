@@ -1,4 +1,7 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.results
+
+import com.example.tp1_blackjack.model.betting.Bet
+import com.example.tp1_blackjack.model.cards.Card
 
 // Storage-facing values are plain Kotlin; the ViewModels never need Room entities.
 data class GameRecord(

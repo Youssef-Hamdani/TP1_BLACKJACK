@@ -1,4 +1,8 @@
-package com.example.tp1_blackjack.model
+package com.example.tp1_blackjack.model.results
+
+import com.example.tp1_blackjack.model.game.Hand
+import com.example.tp1_blackjack.model.game.PlayerHandState
+import com.example.tp1_blackjack.model.game.PlayerHands
 
 object RoundResultResolver {
     fun resolve(

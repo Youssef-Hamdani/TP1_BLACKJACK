@@ -2,15 +2,16 @@ package com.example.tp1_blackjack.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.tp1_blackjack.model.GameAction
-import com.example.tp1_blackjack.model.GamePhase
+import com.example.tp1_blackjack.model.game.GameAction
+import com.example.tp1_blackjack.model.game.GamePhase
 import com.example.tp1_blackjack.ui.navigation.BlackjackNavHost
 import com.example.tp1_blackjack.ui.navigation.BlackjackDestination
 import com.example.tp1_blackjack.ui.scaffold.BlackjackScaffold
@@ -26,37 +27,48 @@ fun BlackjackApp(
     val navController = rememberNavController()
     val gameUiState by gameViewModel.uiState.collectAsStateWithLifecycle()
     val recordsUiState by recordsViewModel.uiState.collectAsStateWithLifecycle()
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
+    var isPresentationBusy by rememberSaveable { mutableStateOf(false) }
+    var isResultReady by rememberSaveable { mutableStateOf(false) }
     val gameTabRoute = when (gameUiState.phase) {
         GamePhase.AWAITING_START -> BlackjackDestination.PREPARATION.route
-        GamePhase.COMPLETE -> BlackjackDestination.RESULT.route
+        GamePhase.COMPLETE -> if (isResultReady) {
+            BlackjackDestination.RESULT.route
+        } else {
+            BlackjackDestination.GAME.route
+        }
         else -> BlackjackDestination.GAME.route
     }
-
-    LaunchedEffect(gameUiState.phase, gameUiState.isSaving, gameUiState.canRetrySave, currentRoute) {
-        val completedAndSaved = gameUiState.phase == GamePhase.COMPLETE &&
-            !gameUiState.isSaving && !gameUiState.canRetrySave && !gameUiState.hasStorageError
-        if (completedAndSaved && currentRoute == BlackjackDestination.GAME.route) {
-            navController.navigate(BlackjackDestination.RESULT.route) { launchSingleTop = true }
+    val performGameAction: (GameAction) -> Unit = { action ->
+        if (!isPresentationBusy) {
+            isPresentationBusy = true
+            if (action == GameAction.START_ROUND) isResultReady = false
+            gameViewModel.onGameAction(action)
         }
     }
 
     BlackjackScaffold(
         navController = navController,
         balance = gameUiState.balance,
-        primaryGameAction = GameAction.HIT.takeIf { it in gameUiState.availableActions },
+        primaryGameAction = GameAction.HIT.takeIf {
+            !isPresentationBusy && it in gameUiState.availableActions
+        },
         gameTabRoute = gameTabRoute,
-        onGameAction = gameViewModel::onGameAction,
+        onGameAction = performGameAction,
     ) { contentPadding ->
         BlackjackNavHost(
             navController = navController,
             gameUiState = gameUiState,
             recordsUiState = recordsUiState,
-            onGameAction = gameViewModel::onGameAction,
+            onGameAction = performGameAction,
             onBetInputChanged = gameViewModel::onBetInputChanged,
             onDeckCountSelected = gameViewModel::onDeckCountSelected,
-            onRetrySave = gameViewModel::onRetrySave,
+            onRetrySave = {
+                isPresentationBusy = true
+                gameViewModel.onRetrySave()
+            },
+            isPresentationBusy = isPresentationBusy,
+            onPresentationIdle = { isPresentationBusy = false },
+            onResultReady = { isResultReady = true },
             modifier = Modifier.padding(contentPadding),
         )
     }
