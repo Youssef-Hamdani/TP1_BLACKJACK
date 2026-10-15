@@ -25,6 +25,7 @@ fun BlackjackNavHost(
     isPresentationBusy: Boolean,
     onPresentationIdle: () -> Unit,
     onResultReady: () -> Unit,
+    onNewRoundRequested: () -> Unit,
     modifier: Modifier = Modifier,
     onRetrySave: () -> Unit = {},
 ) {
@@ -61,7 +62,10 @@ fun BlackjackNavHost(
         composable(BlackjackDestination.RESULT.route) {
             RoundResultScreen(
                 uiState = gameUiState,
-                onNewRound = { navController.popBackStack(BlackjackDestination.PREPARATION.route, false) },
+                onNewRound = {
+                    onNewRoundRequested()
+                    navController.popBackStack(BlackjackDestination.PREPARATION.route, false)
+                },
                 onReviewTable = {
                     navController.navigate(BlackjackDestination.TABLE_REVIEW.route) { launchSingleTop = true }
                 },
@@ -73,7 +77,10 @@ fun BlackjackNavHost(
                 onGameAction = onGameAction,
                 isReviewMode = true,
                 onBackToResult = { navController.popBackStack() },
-                onNewRound = { navController.popBackStack(BlackjackDestination.PREPARATION.route, false) },
+                onNewRound = {
+                    onNewRoundRequested()
+                    navController.popBackStack(BlackjackDestination.PREPARATION.route, false)
+                },
             )
         }
         composable(BlackjackDestination.HISTORY.route) {

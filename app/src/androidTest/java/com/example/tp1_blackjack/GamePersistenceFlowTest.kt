@@ -174,7 +174,7 @@ class GamePersistenceFlowTest {
         assertEquals(3, runBlocking { repository.cardStatistics.first() }.sumOf { it.count })
     }
 
-    @Test fun realNaturalAndInterruptedRound_surviveFileReopen_withoutResumingRound() {
+    @Test fun realNaturalAndInterruptedRound_surviveFileReopen_withRefundOnRestart() {
         val name = "bj25-test-${UUID.randomUUID()}.db"
         var disk = Room.databaseBuilder(context, AppDatabase::class.java, name).build()
         try {
@@ -205,9 +205,12 @@ class GamePersistenceFlowTest {
             storage = GameRepository(disk)
             val afterInterruption = makeGame(storage, Rank.TEN)
             assertEquals(GamePhase.AWAITING_START, afterInterruption.uiState.value.phase)
-            assertEquals(1_075, afterInterruption.uiState.value.balance)
+            // An interrupted 75-chip bet is refunded once on process restart.
+            assertEquals(1_150, afterInterruption.uiState.value.balance)
+            assertEquals(1_150, runBlocking { storage.loadWallet() }.balance)
             assertEquals(1, runBlocking { storage.history.first() }.size)
-            assertEquals(7, runBlocking { storage.cardStatistics.first() }.sumOf { it.count })
+            // The abandoned round's draws are deleted with its unfinished game.
+            assertEquals(4, runBlocking { storage.cardStatistics.first() }.sumOf { it.count })
         } finally {
             composeRule.runOnIdle { store.clear() }
             disk.close()

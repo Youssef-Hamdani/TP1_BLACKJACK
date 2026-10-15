@@ -29,9 +29,13 @@ fun BlackjackApp(
     val recordsUiState by recordsViewModel.uiState.collectAsStateWithLifecycle()
     var isPresentationBusy by rememberSaveable { mutableStateOf(false) }
     var isResultReady by rememberSaveable { mutableStateOf(false) }
+    // COMPLETE remains the engine phase while the next round is being configured.
+    var isPreparingNextRound by rememberSaveable { mutableStateOf(false) }
     val gameTabRoute = when (gameUiState.phase) {
         GamePhase.AWAITING_START -> BlackjackDestination.PREPARATION.route
-        GamePhase.COMPLETE -> if (isResultReady) {
+        GamePhase.COMPLETE -> if (isPreparingNextRound) {
+            BlackjackDestination.PREPARATION.route
+        } else if (isResultReady) {
             BlackjackDestination.RESULT.route
         } else {
             BlackjackDestination.GAME.route
@@ -41,7 +45,10 @@ fun BlackjackApp(
     val performGameAction: (GameAction) -> Unit = { action ->
         if (!isPresentationBusy) {
             isPresentationBusy = true
-            if (action == GameAction.START_ROUND) isResultReady = false
+            if (action == GameAction.START_ROUND) {
+                isResultReady = false
+                isPreparingNextRound = false
+            }
             gameViewModel.onGameAction(action)
         }
     }
@@ -69,6 +76,7 @@ fun BlackjackApp(
             isPresentationBusy = isPresentationBusy,
             onPresentationIdle = { isPresentationBusy = false },
             onResultReady = { isResultReady = true },
+            onNewRoundRequested = { isPreparingNextRound = true },
             modifier = Modifier.padding(contentPadding),
         )
     }

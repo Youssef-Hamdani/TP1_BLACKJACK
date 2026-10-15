@@ -192,6 +192,32 @@ class GameRepositoryTest {
         assertEquals(6, repository.cardStatistics.first().sumOf { it.count })
     }
 
+    @Test
+    fun interruptedSplit_refundsBothCommittedBetsOnceAndRemovesAbandonedDraws() = runBlocking {
+        val source = object : CardSource {
+            val cards = ArrayDeque(
+                listOf(Rank.EIGHT, Rank.TEN, Rank.EIGHT, Rank.SEVEN, Rank.TWO, Rank.THREE)
+                    .map { Card(it, Suit.CLUBS) }
+            )
+            override val remainingCount get() = cards.size
+            override fun prepareForNewRound() = false
+            override fun draw() = cards.removeFirst()
+        }
+        val engine = BlackjackEngine(source)
+        repository.saveRound(game(), engine.startRound(), null)
+        repository.saveRound(game(), engine.split(), null)
+        assertEquals(900, repository.loadWallet().balance)
+        assertEquals(6, repository.readDraws("game").size)
+
+        assertEquals(1, repository.recoverInterruptedRounds())
+        assertEquals(1_000, repository.loadWallet().balance)
+        assertTrue(repository.readDraws("game").isEmpty())
+        assertTrue(repository.cardStatistics.first().isEmpty())
+        assertTrue(repository.history.first().isEmpty())
+        assertEquals(0, repository.recoverInterruptedRounds())
+        assertEquals(1_000, repository.loadWallet().balance)
+    }
+
     private fun game(id: String = "game") = GameRecord(id, 10, 1, 50)
     private fun splitHands() = listOf(
         HandRecord("game", 0, 50, HandOutcome.PLAYER_WIN, 50),

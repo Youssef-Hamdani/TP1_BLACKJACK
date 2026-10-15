@@ -85,6 +85,11 @@ class GameFlowTest {
         composeRule.onNodeWithTag(START_ROUND_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(BET_INPUT_TEST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(DECK_COUNT_OPTION_TEST_TAG_PREFIX + 1).assertIsDisplayed()
+
+        // The game tab should return to setup, not the previous completed result.
+        composeRule.onNodeWithTag("destination-history").performClick()
+        composeRule.onNodeWithTag("destination-preparation").performClick()
+        composeRule.onNodeWithTag(BET_INPUT_TEST_TAG).assertIsDisplayed()
     }
 
     @Test
