@@ -19,7 +19,7 @@ jobs:
           java-version: '25'
       - name: Install Android SDK platform
         run: |
-          SDK_MANAGER="$(command -v sdkmanager)"
+          SDK_MANAGER="$(command -v sdkmanager || true)"
           if [ -z "$SDK_MANAGER" ]; then
             SDK_MANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"
           fi
