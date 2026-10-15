@@ -23,10 +23,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -175,6 +177,15 @@ fun GameScreen(
     onBackToResult: () -> Unit = {},
     onNewRound: () -> Unit = {},
 ) {
+    // Leaving the table during a deal cancels its LaunchedEffect. Releasing the
+    // UI-only lock on disposal keeps a later visit playable; the ViewModel still
+    // blocks actions while Room is writing.
+    val latestOnPresentationIdle by rememberUpdatedState(onPresentationIdle)
+    DisposableEffect(isReviewMode) {
+        onDispose {
+            if (!isReviewMode) latestOnPresentationIdle()
+        }
+    }
     val presentation = rememberTablePresentation(
         uiState = uiState,
         animateChanges = isPresentationBusy && !isReviewMode,

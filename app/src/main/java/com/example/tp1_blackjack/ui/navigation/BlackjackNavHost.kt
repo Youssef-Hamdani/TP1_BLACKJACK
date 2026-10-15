@@ -9,6 +9,7 @@ import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.ui.screens.GameScreen
 import com.example.tp1_blackjack.ui.screens.HistoryScreen
 import com.example.tp1_blackjack.ui.screens.PreparationScreen
+import com.example.tp1_blackjack.ui.screens.PlayerCreationScreen
 import com.example.tp1_blackjack.ui.screens.RoundResultScreen
 import com.example.tp1_blackjack.ui.screens.StatisticsScreen
 import com.example.tp1_blackjack.viewmodel.GameUiState
@@ -17,6 +18,8 @@ import com.example.tp1_blackjack.viewmodel.RecordsUiState
 @Composable
 fun BlackjackNavHost(
     navController: NavHostController,
+    initialDestination: String,
+    onCreatePlayer: (String) -> Boolean,
     gameUiState: GameUiState,
     recordsUiState: RecordsUiState,
     onGameAction: (GameAction) -> Unit,
@@ -25,14 +28,28 @@ fun BlackjackNavHost(
     isPresentationBusy: Boolean,
     onPresentationIdle: () -> Unit,
     onResultReady: () -> Unit,
+    onNewRoundRequested: () -> Unit,
     modifier: Modifier = Modifier,
     onRetrySave: () -> Unit = {},
 ) {
     NavHost(
         navController = navController,
-        startDestination = BlackjackDestination.PREPARATION.route,
+        startDestination = initialDestination,
         modifier = modifier,
     ) {
+        composable(BlackjackDestination.PLAYER_CREATION.route) {
+            PlayerCreationScreen(onCreate = { name ->
+                if (onCreatePlayer(name)) {
+                    navController.navigate(BlackjackDestination.PREPARATION.route) {
+                        popUpTo(BlackjackDestination.PLAYER_CREATION.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                    true
+                } else {
+                    false
+                }
+            })
+        }
         composable(BlackjackDestination.PREPARATION.route) {
             PreparationScreen(
                 uiState = gameUiState,
@@ -61,7 +78,10 @@ fun BlackjackNavHost(
         composable(BlackjackDestination.RESULT.route) {
             RoundResultScreen(
                 uiState = gameUiState,
-                onNewRound = { navController.popBackStack(BlackjackDestination.PREPARATION.route, false) },
+                onNewRound = {
+                    onNewRoundRequested()
+                    navController.popBackStack(BlackjackDestination.PREPARATION.route, false)
+                },
                 onReviewTable = {
                     navController.navigate(BlackjackDestination.TABLE_REVIEW.route) { launchSingleTop = true }
                 },
@@ -73,7 +93,10 @@ fun BlackjackNavHost(
                 onGameAction = onGameAction,
                 isReviewMode = true,
                 onBackToResult = { navController.popBackStack() },
-                onNewRound = { navController.popBackStack(BlackjackDestination.PREPARATION.route, false) },
+                onNewRound = {
+                    onNewRoundRequested()
+                    navController.popBackStack(BlackjackDestination.PREPARATION.route, false)
+                },
             )
         }
         composable(BlackjackDestination.HISTORY.route) {
