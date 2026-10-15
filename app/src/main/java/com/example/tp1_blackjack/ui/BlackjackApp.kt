@@ -2,6 +2,7 @@ package com.example.tp1_blackjack.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -9,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.model.game.GamePhase
@@ -27,6 +29,24 @@ fun BlackjackApp(
     val navController = rememberNavController()
     val gameUiState by gameViewModel.uiState.collectAsStateWithLifecycle()
     val recordsUiState by recordsViewModel.uiState.collectAsStateWithLifecycle()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    // Android may restore the previous NavHost stack after killing the process,
+    // but this ViewModel starts with a fresh game. Do not show an empty table.
+    LaunchedEffect(gameUiState.phase, gameUiState.isLoading, backStackEntry?.destination?.route) {
+        val staleGameRoute = backStackEntry?.destination?.route in setOf(
+            BlackjackDestination.GAME.route,
+            BlackjackDestination.RESULT.route,
+            BlackjackDestination.TABLE_REVIEW.route,
+        )
+        if (!gameUiState.isLoading &&
+            gameUiState.phase == GamePhase.AWAITING_START && staleGameRoute
+        ) {
+            navController.navigate(BlackjackDestination.PREPARATION.route) {
+                popUpTo(BlackjackDestination.PREPARATION.route) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
+    }
     var isPresentationBusy by rememberSaveable { mutableStateOf(false) }
     var isResultReady by rememberSaveable { mutableStateOf(false) }
     // COMPLETE remains the engine phase while the next round is being configured.

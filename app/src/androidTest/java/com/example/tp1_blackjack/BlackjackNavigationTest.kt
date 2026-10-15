@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -84,6 +85,11 @@ class BlackjackNavigationTest {
         composeRule.onNodeWithTag(ROUND_CONTENT_TEST_TAG).assertIsDisplayed()
         assertEquals(cardsBeforeNavigation, game.uiState.value.playerHands.single().cards)
         assertEquals(950, game.uiState.value.balance)
+        composeRule.waitUntil(6_000) {
+            runCatching {
+                composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).assertIsEnabled()
+            }.isSuccess
+        }
         composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).assertIsDisplayed()
         composeRule.onAllNodesWithTag(SPLIT_ACTION_TEST_TAG).assertCountEquals(0)
 
