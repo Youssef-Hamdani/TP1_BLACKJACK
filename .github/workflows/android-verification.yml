@@ -17,7 +17,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
-      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK platform
+        run: |
+          SDK_MANAGER="$(command -v sdkmanager)"
+          if [ -z "$SDK_MANAGER" ]; then
+            SDK_MANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+          fi
+          test -x "$SDK_MANAGER"
+          yes | "$SDK_MANAGER" --licenses > /dev/null || true
+          "$SDK_MANAGER" --install "platform-tools" "platforms;android-37" "build-tools;37.0.0"
       - uses: gradle/actions/setup-gradle@v4
       - name: Verify JVM tests, debug APK and Android lint
         run: |
