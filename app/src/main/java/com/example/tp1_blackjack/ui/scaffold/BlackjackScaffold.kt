@@ -26,6 +26,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tp1_blackjack.R
 import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.ui.navigation.BlackjackDestination
+import com.example.tp1_blackjack.ui.navigation.BLACKJACK_GRAPH_ROUTE
 
 const val GAME_FAB_TEST_TAG = "game-primary-action"
 
@@ -90,11 +91,19 @@ fun BlackjackScaffold(
                         selected = selected,
                         onClick = {
                             val targetRoute = if (isGameTab) gameTabRoute else destination.route
-                            navController.navigate(targetRoute) {
-                                if (isGameTab) {
-                                    popUpTo(BlackjackDestination.PREPARATION.route)
+                            if (currentDestination.route != targetRoute) {
+                                if (isGameTab && navController.popBackStack(targetRoute, false)) {
+                                    // Return to the existing game destination.
+                                } else {
+                                    navController.navigate(targetRoute) {
+                                        if (isGameTab) {
+                                            popUpTo(BLACKJACK_GRAPH_ROUTE)
+                                        } else {
+                                            popUpTo(gameTabRoute)
+                                        }
+                                        launchSingleTop = true
+                                    }
                                 }
-                                launchSingleTop = true
                             }
                         },
                         icon = {

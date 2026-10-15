@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.Espresso.pressBackUnconditionally
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.room.Room
 import androidx.lifecycle.ViewModelStore
@@ -31,6 +32,7 @@ import com.example.tp1_blackjack.ui.screens.ROUND_CONTENT_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.SPLIT_ACTION_TEST_TAG
 import com.example.tp1_blackjack.ui.screens.STAND_ACTION_TEST_TAG
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -105,5 +107,17 @@ class BlackjackNavigationTest {
         pressBack()
         composeRule.onNodeWithTag(ROUND_CONTENT_TEST_TAG).assertIsDisplayed()
         assertEquals(cardsBeforeNavigation, game.uiState.value.playerHands.single().cards)
+    }
+
+    @Test
+    fun androidBackFromActiveGameDoesNotExposeEditablePreparation() {
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
+        composeRule.waitUntil(5_000) { !game.uiState.value.isSaving }
+        composeRule.onNodeWithTag(ROUND_CONTENT_TEST_TAG).assertIsDisplayed()
+
+        pressBackUnconditionally()
+        composeRule.waitUntil(5_000) { composeRule.activity.isFinishing }
+        assertTrue(composeRule.activity.isFinishing)
+        assertEquals(GamePhase.PLAYER_TURN, game.uiState.value.phase)
     }
 }

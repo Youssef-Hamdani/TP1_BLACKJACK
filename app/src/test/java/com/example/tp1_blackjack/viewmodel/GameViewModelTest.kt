@@ -8,6 +8,7 @@ import com.example.tp1_blackjack.model.game.BlackjackEngine
 import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.model.game.GamePhase
 import com.example.tp1_blackjack.model.results.HandOutcome
+import com.example.tp1_blackjack.model.results.CardOwner
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
@@ -32,6 +33,11 @@ class GameViewModelTest {
         assertTrue(state.dealerCards.first().isFaceDown)
         assertNull(state.dealerCards.first().card)
         assertNull(state.dealerScore)
+        assertEquals(
+            listOf(CardOwner.PLAYER, CardOwner.DEALER, CardOwner.PLAYER, CardOwner.DEALER),
+            state.drawEvents.map { it.owner },
+        )
+        assertEquals(listOf(10, 17), state.playerHands.single().runningScores)
         assertEquals(setOf(GameAction.HIT, GameAction.STAND), state.availableActions)
     }
 
@@ -82,6 +88,36 @@ class GameViewModelTest {
 
         assertEquals("75", viewModel.uiState.value.betInput)
         assertEquals(75, viewModel.uiState.value.selectedBet)
+        assertTrue(GameAction.START_ROUND in viewModel.uiState.value.availableActions)
+    }
+
+    @Test
+    fun emptyAndInvalidBetStayVisibleUntilCorrection_thenPreparationUsesEngineSelection() {
+        val viewModel = viewModelWithCards(
+            Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX, Rank.SIX,
+        )
+        viewModel.onBetInputChanged("")
+        assertEquals("", viewModel.uiState.value.betInput)
+        assertEquals(50, viewModel.uiState.value.selectedBet)
+        assertEquals(BetInputError.REQUIRED, viewModel.uiState.value.betInputError)
+        assertTrue(GameAction.START_ROUND !in viewModel.uiState.value.availableActions)
+
+        viewModel.onBetInputChanged("200")
+        assertEquals("200", viewModel.uiState.value.betInput)
+        assertEquals(BetInputError.OUT_OF_RANGE, viewModel.uiState.value.betInputError)
+        viewModel.onBetInputChanged("75")
+        assertEquals("75", viewModel.uiState.value.betInput)
+        assertEquals(75, viewModel.uiState.value.selectedBet)
+        viewModel.onGameAction(GameAction.START_ROUND)
+        assertEquals(925, viewModel.uiState.value.balance)
+        viewModel.onGameAction(GameAction.STAND)
+
+        viewModel.onBetInputChanged("")
+        viewModel.prepareNextRound()
+        viewModel.onDeckCountSelected(4)
+        assertEquals("75", viewModel.uiState.value.betInput)
+        assertEquals(75, viewModel.uiState.value.selectedBet)
+        assertEquals(4, viewModel.uiState.value.selectedDeckCount)
         assertTrue(GameAction.START_ROUND in viewModel.uiState.value.availableActions)
     }
 

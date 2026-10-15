@@ -133,7 +133,7 @@ class GamePersistenceFlowTest {
     }
 
     @Test fun failedSave_thenRetry_doesNotDrawOrDebitAgain() {
-        val game = showGame(Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX, Rank.KING)
+        val game = showGame(Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX, Rank.KING, Rank.TEN)
         composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
         awaitSaved(game)
         waitForTag(GAME_FAB_TEST_TAG)
@@ -156,12 +156,46 @@ class GamePersistenceFlowTest {
         composeRule.onNodeWithTag(ROUND_RESULT_SCREEN_TEST_TAG).assertIsDisplayed()
         val entry = runBlocking { repository.history.first().single() }
         val cards = runBlocking { repository.readDraws(entry.game.id) }
-        assertEquals(5, cards.size)
-        assertFalse(cards[1].isObserved)
+        assertEquals(6, cards.size)
+        assertTrue(cards[1].isObserved)
         assertEquals(-50, entry.game.netChange)
         assertEquals(950, entry.game.balanceAfter)
         composeRule.runOnIdle { game.onRetrySave() }
         assertEquals(1, runBlocking { repository.history.first() }.size)
+    }
+
+    @Test fun hitSaveFailure_thenRetryUnlocksNextActionWithoutAnotherDraw() {
+        val game = showGame(
+            Rank.TEN, Rank.FIVE, Rank.TWO, Rank.SIX, Rank.THREE, Rank.FOUR, Rank.TEN,
+        )
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
+        awaitSaved(game)
+        waitForTag(GAME_FAB_TEST_TAG)
+        database.openHelper.writableDatabase.execSQL("""
+            CREATE TRIGGER fail_hit BEFORE UPDATE OF balance ON wallet
+            BEGIN SELECT RAISE(ABORT, 'Test failure'); END
+        """.trimIndent())
+
+        composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        composeRule.waitUntil(5_000) { game.uiState.value.canRetrySave }
+        assertEquals(GamePhase.PLAYER_TURN, game.uiState.value.phase)
+        assertEquals(15, game.uiState.value.playerHands.single().score)
+        assertTrue(game.uiState.value.availableActions.isEmpty())
+        val gameId = runBlocking { database.gameDao().findUnfinished().single().id }
+        assertEquals(4, runBlocking { repository.readDraws(gameId) }.size)
+        database.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_hit")
+
+        composeRule.onNodeWithTag("retry-save").performClick()
+        awaitSaved(game)
+        waitForEnabledTag(STAND_ACTION_TEST_TAG)
+        assertEquals(950, runBlocking { repository.loadWallet() }.balance)
+        assertEquals(5, runBlocking { repository.readDraws(gameId) }.size)
+        assertEquals(3, game.uiState.value.playerHands.single().cards.size)
+        composeRule.onNodeWithTag(STAND_ACTION_TEST_TAG).performScrollTo().performClick()
+        awaitSaved(game)
+        val entry = runBlocking { repository.history.first().single() }
+        assertEquals(1, runBlocking { repository.history.first() }.size)
+        assertEquals(7, runBlocking { repository.readDraws(entry.game.id) }.size)
     }
 
     @Test fun doubleTapBeforeRecomposition_doesNotStartOrDrawTwice() {
@@ -210,9 +244,10 @@ class GamePersistenceFlowTest {
             // An interrupted 75-chip bet is refunded once on process restart.
             assertEquals(1_150, afterInterruption.uiState.value.balance)
             assertEquals(1_150, runBlocking { storage.loadWallet() }.balance)
-            assertEquals(1, runBlocking { storage.history.first() }.size)
-            // The abandoned round's draws are deleted with its unfinished game.
-            assertEquals(4, runBlocking { storage.cardStatistics.first() }.sumOf { it.count })
+            assertEquals(2, runBlocking { storage.history.first() }.size)
+            assertEquals(1, runBlocking { storage.history.first() }.count { it.game.abandonedAt != null })
+            // The hidden card stays excluded; three visible cards remain observable.
+            assertEquals(7, runBlocking { storage.cardStatistics.first() }.sumOf { it.count })
         } finally {
             composeRule.runOnIdle { store.clear() }
             disk.close()

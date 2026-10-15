@@ -43,6 +43,16 @@ class BlackjackEngine(
         return state
     }
 
+    fun restartBankroll(): GameState {
+        check(state.canSelectDeckCount && state.balance == 0)
+        state = GameState(
+            selectedBet = state.selectedBet,
+            balance = INITIAL_BALANCE,
+            deckCount = state.deckCount,
+        )
+        return state
+    }
+
     fun selectBet(amount: Int): GameState {
         check(state.phase == GamePhase.AWAITING_START || state.phase == GamePhase.COMPLETE) {
             "Bet can only be changed between rounds"
@@ -159,14 +169,6 @@ class BlackjackEngine(
         check(!state.playerHands.hasUnfinishedHand) {
             "Dealer turn cannot start while a player hand is unfinished"
         }
-        val allPlayerHandsBust = state.playerHands.hands.all {
-            it.status == PlayerHandStatus.BUST
-        }
-        if (allPlayerHandsBust) {
-            completeRound(revealDealerHoleCard = false)
-            return
-        }
-
         state = state.copy(
             phase = GamePhase.DEALER_TURN,
             isDealerHoleCardRevealed = true,

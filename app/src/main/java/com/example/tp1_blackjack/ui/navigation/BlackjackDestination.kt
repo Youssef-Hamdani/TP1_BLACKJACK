@@ -9,6 +9,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.tp1_blackjack.R
 
+const val BLACKJACK_GRAPH_ROUTE = "blackjack-root"
+
 enum class BlackjackDestination(
     val route: String,
     @param:StringRes val titleResourceId: Int,

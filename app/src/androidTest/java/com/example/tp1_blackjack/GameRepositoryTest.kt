@@ -163,6 +163,22 @@ class GameRepositoryTest {
     }
 
     @Test
+    fun restartingEmptyBankrollPreservesCompletedHistory() = runBlocking {
+        repository.createGame(game())
+        repository.settleGame(
+            "game",
+            20,
+            listOf(HandRecord("game", 0, 50, HandOutcome.DEALER_WIN, -50)),
+            0,
+        )
+        assertTrue(repository.restartBankroll())
+        assertEquals(1_000, repository.loadWallet().balance)
+        assertEquals(1, repository.history.first().size)
+        assertFalse(repository.restartBankroll())
+        assertEquals(1_000, repository.loadWallet().balance)
+    }
+
+    @Test
     fun retryingSnapshot_doesNotDuplicateCardsOrBets_andCompletedRoundCannotBeOverwritten() = runBlocking {
         val engine = BlackjackEngine(object : CardSource {
             val cards = ArrayDeque(listOf(Rank.EIGHT, Rank.TEN, Rank.EIGHT, Rank.SEVEN, Rank.TEN, Rank.NINE)
@@ -193,7 +209,7 @@ class GameRepositoryTest {
     }
 
     @Test
-    fun interruptedSplit_refundsBothCommittedBetsOnceAndRemovesAbandonedDraws() = runBlocking {
+    fun interruptedSplit_refundsBothCommittedBetsOnceAndKeepsObservedDraws() = runBlocking {
         val source = object : CardSource {
             val cards = ArrayDeque(
                 listOf(Rank.EIGHT, Rank.TEN, Rank.EIGHT, Rank.SEVEN, Rank.TWO, Rank.THREE)
@@ -211,9 +227,11 @@ class GameRepositoryTest {
 
         assertEquals(1, repository.recoverInterruptedRounds())
         assertEquals(1_000, repository.loadWallet().balance)
-        assertTrue(repository.readDraws("game").isEmpty())
-        assertTrue(repository.cardStatistics.first().isEmpty())
-        assertTrue(repository.history.first().isEmpty())
+        assertEquals(6, repository.readDraws("game").size)
+        assertEquals(5, repository.cardStatistics.first().sumOf { it.count })
+        val abandoned = repository.history.first().single().game
+        assertTrue(abandoned.abandonedAt != null)
+        assertEquals(2, abandoned.committedBetCount)
         assertEquals(0, repository.recoverInterruptedRounds())
         assertEquals(1_000, repository.loadWallet().balance)
     }

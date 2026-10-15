@@ -17,6 +17,7 @@ import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.model.game.GamePhase
 import com.example.tp1_blackjack.ui.navigation.BlackjackNavHost
 import com.example.tp1_blackjack.ui.navigation.BlackjackDestination
+import com.example.tp1_blackjack.ui.navigation.BLACKJACK_GRAPH_ROUTE
 import com.example.tp1_blackjack.ui.scaffold.BlackjackScaffold
 import com.example.tp1_blackjack.viewmodel.GameViewModel
 import com.example.tp1_blackjack.viewmodel.RecordsViewModel
@@ -52,12 +53,12 @@ fun BlackjackApp(
             gameUiState.phase == GamePhase.AWAITING_START && staleGameRoute
         ) {
             navController.navigate(BlackjackDestination.PREPARATION.route) {
-                popUpTo(BlackjackDestination.PREPARATION.route) { inclusive = false }
+                popUpTo(BLACKJACK_GRAPH_ROUTE)
                 launchSingleTop = true
             }
         }
     }
-    var isPresentationBusy by rememberSaveable { mutableStateOf(false) }
+    var isPresentationBusy by remember { mutableStateOf(false) }
     var isResultReady by rememberSaveable { mutableStateOf(false) }
     // COMPLETE remains the engine phase while the next round is being configured.
     var isPreparingNextRound by rememberSaveable { mutableStateOf(false) }
@@ -101,15 +102,20 @@ fun BlackjackApp(
             recordsUiState = recordsUiState,
             onGameAction = performGameAction,
             onBetInputChanged = gameViewModel::onBetInputChanged,
+            onRestartBankroll = gameViewModel::restartBankroll,
             onDeckCountSelected = gameViewModel::onDeckCountSelected,
             onRetrySave = {
-                isPresentationBusy = true
                 gameViewModel.onRetrySave()
             },
             isPresentationBusy = isPresentationBusy,
             onPresentationIdle = { isPresentationBusy = false },
             onResultReady = { isResultReady = true },
-            onNewRoundRequested = { isPreparingNextRound = true },
+            onNewRoundRequested = {
+                gameViewModel.prepareNextRound()
+                isPresentationBusy = false
+                isResultReady = false
+                isPreparingNextRound = true
+            },
             modifier = Modifier.padding(contentPadding),
         )
     }

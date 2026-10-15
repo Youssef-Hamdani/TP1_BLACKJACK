@@ -195,10 +195,10 @@ class BlackjackEngineSplitTest {
     }
 
     @Test
-    fun bothHandsBust_dealerNeitherRevealsNorDraws() {
+    fun bothHandsBust_dealerRevealsAndDrawsAsRequiredByAssignment() {
         val source = FixedCardSource(
             Rank.EIGHT, Rank.FIVE, Rank.EIGHT, Rank.SIX,
-            Rank.TEN, Rank.TEN, Rank.FIVE, Rank.FIVE,
+            Rank.TEN, Rank.TEN, Rank.FIVE, Rank.FIVE, Rank.TEN,
         )
         val engine = BlackjackEngine(source)
         engine.startRound()
@@ -211,9 +211,9 @@ class BlackjackEngineSplitTest {
         assertTrue(completed.playerHands.hands.all { it.status == PlayerHandStatus.BUST })
         assertEquals(listOf(HandOutcome.DEALER_WIN, HandOutcome.DEALER_WIN), completed.outcomes)
         assertEquals(900, completed.balance)
-        assertFalse(completed.isDealerHoleCardRevealed)
-        assertEquals(2, completed.dealerHand.cards.size)
-        assertEquals(8, source.drawCount)
+        assertTrue(completed.isDealerHoleCardRevealed)
+        assertEquals(3, completed.dealerHand.cards.size)
+        assertEquals(9, source.drawCount)
     }
 
     @Test

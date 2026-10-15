@@ -42,6 +42,7 @@ import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.model.game.GamePhase
 import com.example.tp1_blackjack.model.game.PlayerHandStatus
 import com.example.tp1_blackjack.model.results.HandOutcome
+import com.example.tp1_blackjack.model.results.CardOwner
 import com.example.tp1_blackjack.ui.components.CardView
 import com.example.tp1_blackjack.ui.components.TableSurface
 import com.example.tp1_blackjack.viewmodel.DisplayCardUiState
@@ -90,6 +91,7 @@ private fun rememberTablePresentation(
         uiState.playerHands.map { it.cards },
         uiState.playerHands.map { it.status to it.isActive },
         uiState.dealerCards,
+        uiState.drawEvents,
     ) {
         if (!animateChanges) {
             presentation = finalPresentation()
@@ -102,40 +104,57 @@ private fun rememberTablePresentation(
             val splitOccurred = presentation.playerCardCounts.isNotEmpty() && targetHands.size > 1
             presentation = presentation.copy(
                 playerCardCounts = targetHands.map { if (splitOccurred) minOf(1, it.cards.size) else 0 },
-                playerScores = List(targetHands.size) { null },
+                playerScores = targetHands.map {
+                    if (splitOccurred) it.runningScores.firstOrNull() else null
+                },
             )
         }
-        targetHands.forEachIndexed { handIndex, hand ->
-            while (presentation.playerCardCounts.getOrElse(handIndex) { 0 } < hand.cards.size) {
-                delay(180)
+        var visibleDrawCount = presentation.playerCardCounts.sum() + presentation.dealerCardCount
+        uiState.drawEvents.filter { it.drawOrder >= visibleDrawCount }.forEach { draw ->
+            if (visibleDrawCount >= 4 && uiState.dealerScore != null &&
+                !presentation.revealDealerHoleCard
+            ) {
+                delay(220)
+                presentation = presentation.copy(
+                    revealDealerHoleCard = true,
+                    dealerScore = uiState.dealerRunningScores.getOrNull(
+                        presentation.dealerCardCount - 1,
+                    ),
+                )
+            }
+            delay(if (draw.owner == CardOwner.DEALER && draw.drawOrder >= 4) 300 else 180)
+            if (draw.owner == CardOwner.PLAYER) {
+                val handIndex = checkNotNull(draw.handIndex)
                 val counts = presentation.playerCardCounts.toMutableList()
                 counts[handIndex] = counts[handIndex] + 1
                 presentation = presentation.copy(playerCardCounts = counts)
+                delay(120)
+                val scores = presentation.playerScores.toMutableList()
+                scores[handIndex] = targetHands[handIndex].runningScores.getOrNull(counts[handIndex] - 1)
+                presentation = presentation.copy(playerScores = scores)
+            } else {
+                presentation = presentation.copy(
+                    dealerCardCount = presentation.dealerCardCount + 1,
+                )
+                if (presentation.revealDealerHoleCard) {
+                    delay(120)
+                    presentation = presentation.copy(
+                        dealerScore = uiState.dealerRunningScores.getOrNull(
+                            presentation.dealerCardCount - 1,
+                        ),
+                    )
+                }
             }
-            delay(120)
-            val scores = presentation.playerScores.toMutableList()
-            scores[handIndex] = hand.score
-            presentation = presentation.copy(playerScores = scores)
-        }
-
-        val dealerTargetCount = uiState.dealerCards.size
-        while (presentation.dealerCardCount < minOf(2, dealerTargetCount)) {
-            delay(180)
-            presentation = presentation.copy(dealerCardCount = presentation.dealerCardCount + 1)
+            visibleDrawCount++
         }
         if (uiState.dealerCards.firstOrNull()?.isFaceDown == false &&
             !presentation.revealDealerHoleCard
         ) {
             delay(220)
-            presentation = presentation.copy(revealDealerHoleCard = true)
-        }
-        while (presentation.dealerCardCount < dealerTargetCount) {
-            delay(300)
-            presentation = presentation.copy(dealerCardCount = presentation.dealerCardCount + 1)
-        }
-        if (uiState.dealerScore != null) {
-            delay(120)
-            presentation = presentation.copy(dealerScore = uiState.dealerScore)
+            presentation = presentation.copy(
+                revealDealerHoleCard = true,
+                dealerScore = uiState.dealerRunningScores.getOrNull(presentation.dealerCardCount - 1),
+            )
         }
 
         if (uiState.phase == GamePhase.COMPLETE) {

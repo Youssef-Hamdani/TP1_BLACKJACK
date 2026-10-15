@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -24,6 +25,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -53,8 +58,28 @@ fun PreparationScreen(
     onBetInputChanged: (String) -> Unit,
     onDeckCountSelected: (Int) -> Unit,
     onStart: () -> Unit,
+    onRestartBankroll: () -> Unit,
     isPresentationBusy: Boolean,
 ) {
+    var showRestartConfirmation by rememberSaveable { mutableStateOf(false) }
+    if (showRestartConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showRestartConfirmation = false },
+            title = { Text(stringResource(R.string.bankroll_restart_title)) },
+            text = { Text(stringResource(R.string.bankroll_restart_confirmation)) },
+            confirmButton = {
+                Button(onClick = {
+                    showRestartConfirmation = false
+                    onRestartBankroll()
+                }) { Text(stringResource(R.string.bankroll_restart_action)) }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showRestartConfirmation = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+    }
     TableSurface(modifier = Modifier.fillMaxSize()) {
         when {
             uiState.isLoading -> Text(
@@ -62,7 +87,8 @@ fun PreparationScreen(
                 color = Color.White,
                 modifier = Modifier.padding(24.dp),
             )
-            uiState.hasStorageError && uiState.availableActions.isEmpty() -> Text(
+            uiState.hasStorageError && uiState.availableActions.isEmpty() &&
+                uiState.balance != 0 -> Text(
                 stringResource(R.string.storage_error),
                 color = Color.White,
                 modifier = Modifier.padding(24.dp),
@@ -86,9 +112,20 @@ fun PreparationScreen(
                     onBetInputChanged = onBetInputChanged,
                     onDeckCountSelected = onDeckCountSelected,
                     onStart = onStart,
-                isPresentationBusy = isPresentationBusy,
+                    isPresentationBusy = isPresentationBusy,
                     modifier = Modifier.padding(top = 16.dp),
                 )
+                if (uiState.balance == 0) {
+                    Text(
+                        stringResource(R.string.bankroll_empty),
+                        color = Color.White,
+                        modifier = Modifier.padding(top = 16.dp),
+                    )
+                    Button(
+                        onClick = { showRestartConfirmation = true },
+                        enabled = !uiState.isSaving && !uiState.canRetrySave,
+                    ) { Text(stringResource(R.string.bankroll_restart_action)) }
+                }
             }
         }
     }

@@ -57,10 +57,16 @@ L'interface observe ensuite les changements d'état du ViewModel. L'historique e
 
 Le nom du joueur est enregistré localement. Le portefeuille débute à **1 000 jetons** lors d'une première utilisation.
 
-Les manches sont enregistrées au fil du jeu. La version actuelle ne reprend pas une manche interrompue après la mort du processus : lors du redémarrage, une opération Room rembourse les mises engagées une seule fois et retire les manches inachevées des résultats et statistiques.
+Les manches sont enregistrées au fil du jeu. La version actuelle ne reprend pas une manche interrompue après la mort du processus : lors du redémarrage, une transaction Room la marque comme interrompue et rembourse les mises engagées une seule fois. Les cartes déjà observées restent comptées dans les statistiques, mais pas la carte cachée jamais révélée. Une migration explicite de la base v1 vers v2 préserve les anciennes données.
+
+Si le solde atteint zéro, le joueur peut confirmer une remise à 1 000 jetons sans effacer l'historique.
 
 ## Suivi Scrum
 
 Le [tableau Trello du projet](https://trello.com/b/cG4pTP0E/blackjack-android-420-c56-jo) contient le Product Backlog, les trois sprints et leurs revues. Les tâches non terminées restent indiquées dans le backlog.
 
 Les tests doivent être relancés après chaque modification importante; leur présence dans le dépôt ne garantit pas qu'ils passent sur le dernier commit.
+
+**Documentation :** [diagrammes et explication de l'architecture](docs/architecture.md), [Product Backlog](docs/02%20-%20Product%20Backlog.md), [plan des sprints](docs/03%20-%20Sprint%20Plan.md) et [Sprint Reviews](docs/06%20-%20Sprint%20Reviews.md). La baseline approuvée est conservée sans modification dans `docs/baseline/`.
+
+**Limite connue :** une manche interrompue est remboursée, mais ne peut pas être reprise carte par carte. Le nom du joueur est une préférence locale; il ne représente pas un compte distinct.
