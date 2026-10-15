@@ -1,6 +1,7 @@
 package com.example.tp1_blackjack.database.entity
 
 import androidx.room.Entity
+import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "games")
@@ -12,4 +13,6 @@ data class GameEntity(
     val completedAt: Long?,
     val netChange: Int?,
     val balanceAfter: Int?,
+    val abandonedAt: Long? = null,
+    @ColumnInfo(defaultValue = "1") val committedBetCount: Int = 1,
 )

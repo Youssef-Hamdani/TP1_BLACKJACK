@@ -2,23 +2,24 @@ package com.example.tp1_blackjack.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tp1_blackjack.repository.GameRepository
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import com.example.tp1_blackjack.model.game.BlackjackEngine
 import com.example.tp1_blackjack.model.betting.Bet
+import com.example.tp1_blackjack.model.betting.PayoutCalculator
+import com.example.tp1_blackjack.model.cards.Shoe
+import com.example.tp1_blackjack.model.game.BlackjackEngine
 import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.model.game.GamePhase
 import com.example.tp1_blackjack.model.game.GameState
+import com.example.tp1_blackjack.model.game.Hand
 import com.example.tp1_blackjack.model.results.GameRecord
-import com.example.tp1_blackjack.model.betting.PayoutCalculator
-import java.util.UUID
-import com.example.tp1_blackjack.model.cards.Shoe
+import com.example.tp1_blackjack.repository.GameRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.UUID
 
 class GameViewModel(
     private val engine: BlackjackEngine = BlackjackEngine(),
@@ -31,7 +32,11 @@ class GameViewModel(
     private var activeGame: GameRecord? = null
     private var pendingSave: RoundSave? = null
 
-    private data class RoundSave(val game: GameRecord, val state: GameState, val completedAt: Long?)
+    private data class RoundSave(
+        val game: GameRecord,
+        val state: GameState,
+        val completedAt: Long?,
+    )
     private val _uiState = MutableStateFlow(engine.state.toUiState().copy(
         isLoading = !isStorageReady,
         availableActions = if (isStorageReady) engine.state.availableActions else emptySet(),
@@ -76,8 +81,12 @@ class GameViewModel(
         }
         val currentBetInput = _uiState.value.betInput
         if (action == GameAction.START_ROUND && repository != null) {
-            activeGame = GameRecord(UUID.randomUUID().toString(), System.currentTimeMillis(),
-                engine.state.deckCount, engine.state.selectedBet.amount)
+            activeGame = GameRecord(
+                id = UUID.randomUUID().toString(),
+                startedAt = System.currentTimeMillis(),
+                deckCount = engine.state.deckCount,
+                initialBet = engine.state.selectedBet.amount,
+            )
         }
         when (action) {
             GameAction.START_ROUND -> engine.startRound()
@@ -87,8 +96,15 @@ class GameViewModel(
         }
         if (repository != null) {
             val game = checkNotNull(activeGame)
-            pendingSave = RoundSave(game, engine.state,
-                if (engine.state.phase == GamePhase.COMPLETE) maxOf(game.startedAt, System.currentTimeMillis()) else null)
+            pendingSave = RoundSave(
+                game = game,
+                state = engine.state,
+                completedAt = if (engine.state.phase == GamePhase.COMPLETE) {
+                    maxOf(game.startedAt, System.currentTimeMillis())
+                } else {
+                    null
+                },
+            )
             savePendingRound()
         }
         publish(currentBetInput)
@@ -149,6 +165,33 @@ class GameViewModel(
         engine.selectDeckCount(deckCount)
         publish(_uiState.value.betInput)
     }
+
+    fun prepareNextRound() {
+        check(engine.state.phase == GamePhase.COMPLETE)
+        publish(engine.state.selectedBet.amount.toString())
+    }
+
+    fun restartBankroll() {
+        if (!isStorageReady || isSaving || pendingSave != null ||
+            !engine.state.canSelectDeckCount || engine.state.balance != 0
+        ) return
+        isSaving = true
+        publish(_uiState.value.betInput)
+        viewModelScope.launch {
+            try {
+                if (repository == null || repository.restartBankroll()) {
+                    engine.restartBankroll()
+                }
+                hasStorageError = false
+            } catch (error: Exception) {
+                if (error is CancellationException) throw error
+                hasStorageError = true
+            } finally {
+                isSaving = false
+                publish(engine.state.selectedBet.amount.toString())
+            }
+        }
+    }
 }
 
 private fun GameState.toUiState(
@@ -173,11 +216,20 @@ private fun GameState.toUiState(
             )
         },
         dealerScore = dealerHand.score.takeIf { isDealerHoleCardRevealed },
+        dealerRunningScores = dealerHand.cards.indices.map { index ->
+            Hand(dealerHand.cards.take(index + 1)).score
+        },
+        drawEvents = drawnCards.map { draw ->
+            DrawEventUiState(draw.drawOrder, draw.owner, draw.handIndex)
+        },
         playerHands = playerHands.hands.mapIndexedNotNull { index, playerHand ->
             if (playerHand.hand.cards.isEmpty()) return@mapIndexedNotNull null
             PlayerHandUiState(
                 cards = playerHand.hand.cards,
                 score = playerHand.hand.score,
+                runningScores = playerHand.hand.cards.indices.map { cardIndex ->
+                    Hand(playerHand.hand.cards.take(cardIndex + 1)).score
+                },
                 status = playerHand.status,
                 isActive = phase == GamePhase.PLAYER_TURN && index == playerHands.activeHandIndex,
                 outcome = outcomes.getOrNull(index),

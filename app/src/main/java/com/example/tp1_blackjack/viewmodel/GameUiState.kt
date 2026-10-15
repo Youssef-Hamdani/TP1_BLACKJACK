@@ -5,6 +5,13 @@ import com.example.tp1_blackjack.model.game.GameAction
 import com.example.tp1_blackjack.model.game.GamePhase
 import com.example.tp1_blackjack.model.game.PlayerHandStatus
 import com.example.tp1_blackjack.model.results.HandOutcome
+import com.example.tp1_blackjack.model.results.CardOwner
+
+data class DrawEventUiState(
+    val drawOrder: Int,
+    val owner: CardOwner,
+    val handIndex: Int?,
+)
 
 data class DisplayCardUiState(
     val card: Card?,
@@ -14,6 +21,7 @@ data class DisplayCardUiState(
 data class PlayerHandUiState(
     val cards: List<Card>,
     val score: Int,
+    val runningScores: List<Int>,
     val status: PlayerHandStatus,
     val isActive: Boolean,
     val outcome: HandOutcome?,
@@ -36,6 +44,8 @@ data class GameUiState(
     val phase: GamePhase = GamePhase.AWAITING_START,
     val dealerCards: List<DisplayCardUiState> = emptyList(),
     val dealerScore: Int? = null,
+    val dealerRunningScores: List<Int> = emptyList(),
+    val drawEvents: List<DrawEventUiState> = emptyList(),
     val playerHands: List<PlayerHandUiState> = emptyList(),
     val netChange: Int? = null,
     val betInput: String = "50",

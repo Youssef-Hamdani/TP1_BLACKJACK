@@ -49,7 +49,7 @@ class BlackjackEngineTest {
     }
 
     @Test
-    fun bust_completesWithoutRevealingOrPlayingDealer() {
+    fun bust_completesAfterDealerRevealsAndDraws() {
         val source = FixedCardSource(
             card(Rank.KING),
             card(Rank.FIVE),
@@ -65,9 +65,9 @@ class BlackjackEngineTest {
 
         assertEquals(PlayerHandStatus.BUST, state.playerHands.activeHand.status)
         assertEquals(GamePhase.COMPLETE, state.phase)
-        assertFalse(state.isDealerHoleCardRevealed)
-        assertEquals(2, state.dealerHand.cards.size)
-        assertEquals(5, source.drawCount)
+        assertTrue(state.isDealerHoleCardRevealed)
+        assertEquals(3, state.dealerHand.cards.size)
+        assertEquals(6, source.drawCount)
         assertEquals(listOf(HandOutcome.DEALER_WIN), state.outcomes)
     }
 

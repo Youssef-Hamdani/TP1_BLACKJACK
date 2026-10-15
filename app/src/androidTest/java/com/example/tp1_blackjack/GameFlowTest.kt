@@ -213,6 +213,35 @@ class GameFlowTest {
     }
 
     @Test
+    fun twoSplitHandsBust_resultExplainsTheBusts() {
+        val viewModel = GameViewModel(
+            BlackjackEngine(
+                FixedCardSource(
+                    card(Rank.FIVE), card(Rank.TEN), card(Rank.FIVE), card(Rank.SEVEN),
+                    card(Rank.FOUR), card(Rank.SIX), card(Rank.FIVE), card(Rank.FIVE),
+                    card(Rank.TEN), card(Rank.KING), card(Rank.FIVE),
+                ),
+            ),
+        )
+        composeRule.setContent {
+            TP1_BlackJackTheme { BlackjackApp(gameViewModel = viewModel) }
+        }
+
+        composeRule.onNodeWithTag(START_ROUND_TEST_TAG).performClick()
+        waitForEnabledTag(SPLIT_ACTION_TEST_TAG)
+        composeRule.onNodeWithTag(SPLIT_ACTION_TEST_TAG).performClick()
+        repeat(5) {
+            waitForEnabledTag(GAME_FAB_TEST_TAG)
+            composeRule.onNodeWithTag(GAME_FAB_TEST_TAG).performClick()
+        }
+
+        waitForTag(ROUND_RESULT_SCREEN_TEST_TAG)
+        composeRule.onNodeWithText("Les deux mains ont dépassé 21.").assertIsDisplayed()
+        assertEquals(PlayerHandStatus.BUST, viewModel.uiState.value.playerHands[0].status)
+        assertEquals(PlayerHandStatus.BUST, viewModel.uiState.value.playerHands[1].status)
+    }
+
+    @Test
     fun deckCountSelector_updatesViewModelAndIsHiddenDuringRound() {
         val viewModel = GameViewModel(
             BlackjackEngine(

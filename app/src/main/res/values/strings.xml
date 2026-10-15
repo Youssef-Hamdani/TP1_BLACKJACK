@@ -18,7 +18,7 @@
     </plurals>
     <string name="destination_player_creation">Créer un joueur</string>
     <string name="player_creation_title">Bienvenue au Blackjack</string>
-    <string name="player_creation_explanation">Entrez votre nom pour commencer. Vous recevrez 1 000 jetons au départ.</string>
+    <string name="player_creation_explanation">Entrez votre nom pour jouer. Le capital initial est de 1 000 jetons; votre solde existant est conservé.</string>
     <string name="player_creation_label">Nom du joueur</string>
     <string name="player_creation_action">Créer mon joueur</string>
     <string name="player_creation_error">Impossible d’enregistrer le nom. Réessayez.</string>
@@ -52,6 +52,11 @@
     <string name="bet_error_number">La mise doit être un nombre entier.</string>
     <string name="bet_error_range">La mise doit être entre 1 et 100 jetons.</string>
     <string name="bet_error_insufficient_funds">Solde insuffisant pour cette mise.</string>
+    <string name="bankroll_empty">Vous n’avez plus de jetons pour commencer une manche.</string>
+    <string name="bankroll_restart_title">Recommencer avec 1 000 jetons ?</string>
+    <string name="bankroll_restart_confirmation">Votre historique et vos statistiques seront conservés.</string>
+    <string name="bankroll_restart_action">Recommencer</string>
+    <string name="action_cancel">Annuler</string>
     <string name="deck_count_prompt">Nombre de paquets dans le sabot</string>
     <plurals name="deck_count_option">
         <item quantity="one">%1$d paquet</item>
@@ -72,6 +77,7 @@
     <string name="result_push">Égalité</string>
     <string name="result_mixed">Résultats partagés</string>
     <string name="result_explanation_player_bust">Vous avez dépassé 21.</string>
+    <string name="result_explanation_all_bust">Les deux mains ont dépassé 21.</string>
     <string name="result_explanation_blackjack">Vous avez obtenu un Blackjack naturel.</string>
     <string name="result_explanation_dealer_bust">Le croupier a dépassé 21.</string>
     <string name="result_explanation_higher_player">Votre score est supérieur à celui du croupier.</string>
@@ -89,6 +95,7 @@
     <string name="table_review_explanation">Table finale en lecture seule</string>
     <string name="history_placeholder_title">Aucune partie enregistrée</string>
     <string name="history_placeholder_body">Les parties terminées apparaîtront ici.</string>
+    <string name="history_abandoned">Manche interrompue · mises remboursées</string>
     <string name="statistics_placeholder_title">Aucune statistique disponible</string>
     <string name="statistics_placeholder_body">Les cartes observées seront calculées depuis la base de données.</string>
     <string name="card_hidden">Carte cachée</string>

@@ -31,13 +31,10 @@ interface GameDao {
     @Query("SELECT * FROM games WHERE id = :id")
     suspend fun find(id: String): GameEntity?
 
-    @Query("SELECT * FROM games WHERE completedAt IS NULL ORDER BY startedAt, id")
+    @Query("SELECT * FROM games WHERE completedAt IS NULL AND abandonedAt IS NULL ORDER BY startedAt, id")
     suspend fun findUnfinished(): List<GameEntity>
 
-    @Query("DELETE FROM games WHERE id = :id AND completedAt IS NULL")
-    suspend fun deleteUnfinished(id: String): Int
-
     @Transaction
-    @Query("SELECT * FROM games WHERE completedAt IS NOT NULL ORDER BY completedAt DESC, id DESC")
+    @Query("SELECT * FROM games WHERE completedAt IS NOT NULL OR abandonedAt IS NOT NULL ORDER BY COALESCE(completedAt, abandonedAt) DESC, id DESC")
     fun observeHistory(): Flow<List<GameWithHands>>
 }

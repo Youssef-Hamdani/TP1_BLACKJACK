@@ -12,6 +12,8 @@ data class GameRecord(
     val completedAt: Long? = null,
     val netChange: Int? = null,
     val balanceAfter: Int? = null,
+    val abandonedAt: Long? = null,
+    val committedBetCount: Int = 1,
 )
 
 data class HandRecord(

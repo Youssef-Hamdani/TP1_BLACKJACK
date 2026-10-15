@@ -182,6 +182,9 @@ private fun resultPresentation(uiState: GameUiState): ResultPresentation {
     }
     val explanation = when {
         isMixed -> R.string.result_explanation_mixed
+        uiState.playerHands.size > 1 &&
+            uiState.playerHands.all { it.status == PlayerHandStatus.BUST } ->
+            R.string.result_explanation_all_bust
         singleHand?.status == PlayerHandStatus.BUST -> R.string.result_explanation_player_bust
         singleHand?.outcome == HandOutcome.PLAYER_BLACKJACK -> R.string.result_explanation_blackjack
         uiState.dealerScore?.let { it > 21 } == true -> R.string.result_explanation_dealer_bust

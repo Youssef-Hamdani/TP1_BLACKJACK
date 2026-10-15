@@ -48,15 +48,23 @@ fun HistoryScreen(uiState: RecordsUiState) {
             )
         }
         items(uiState.history, key = { it.game.id }) { entry ->
-            val date = remember(entry.game.completedAt) {
+            val date = remember(entry.game.completedAt, entry.game.abandonedAt) {
                 DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-                    .format(Date(checkNotNull(entry.game.completedAt)))
+                    .format(Date(checkNotNull(entry.game.completedAt ?: entry.game.abandonedAt)))
             }
             Card(modifier = Modifier.fillMaxWidth().testTag("history-item-${entry.game.id}")) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(date, style = MaterialTheme.typography.titleMedium)
-                    val totalBet = entry.hands.sumOf { it.bet }
+                    val totalBet = if (entry.game.abandonedAt != null) {
+                        entry.game.initialBet * entry.game.committedBetCount
+                    } else {
+                        entry.hands.sumOf { it.bet }
+                    }
                     Text(pluralStringResource(R.plurals.history_total_bet, totalBet, totalBet))
+                    if (entry.game.abandonedAt != null) {
+                        Text(stringResource(R.string.history_abandoned))
+                        return@Column
+                    }
                     entry.hands.forEach { hand ->
                         Text(
                             pluralStringResource(

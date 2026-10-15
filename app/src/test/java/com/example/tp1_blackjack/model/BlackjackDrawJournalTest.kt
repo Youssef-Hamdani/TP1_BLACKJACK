@@ -10,17 +10,17 @@ import org.junit.Test
 
 class BlackjackDrawJournalTest {
     @Test
-    fun distributionAndHit_keepDrawOrder_andBustDoesNotRevealDealer() {
+    fun distributionAndHit_keepDrawOrder_thenBustRevealsDealer() {
         val engine = engine(Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX, Rank.KING)
         engine.startRound()
         val initial = engine.state.drawnCards
         assertEquals(listOf(CardOwner.PLAYER, CardOwner.DEALER, CardOwner.PLAYER, CardOwner.DEALER), initial.map { it.owner })
         assertEquals(listOf(true, false, true, true), initial.map { it.isObserved })
         engine.hit()
-        assertEquals((0..4).toList(), engine.state.drawnCards.map { it.drawOrder })
-        assertEquals(Rank.KING, engine.state.drawnCards.last().card.rank)
-        assertFalse(engine.state.drawnCards[1].isObserved)
-        assertEquals(4, engine.state.drawnCards.count { it.isObserved })
+        assertEquals((0..5).toList(), engine.state.drawnCards.map { it.drawOrder })
+        assertEquals(Rank.KING, engine.state.drawnCards[4].card.rank)
+        assertTrue(engine.state.drawnCards[1].isObserved)
+        assertEquals(6, engine.state.drawnCards.count { it.isObserved })
         assertEquals(4, initial.size) // The earlier immutable snapshot stays unchanged.
         engine.startRound()
         assertEquals((0..3).toList(), engine.state.drawnCards.map { it.drawOrder })
@@ -42,7 +42,7 @@ class BlackjackDrawJournalTest {
     }
 
     @Test
-    fun bothSplitHandsBust_keepHoleCardUnobservedAndSkipDealerDraws() {
+    fun bothSplitHandsBust_revealHoleCardAndKeepBothLosses() {
         val engine = engine(Rank.EIGHT, Rank.FIVE, Rank.EIGHT, Rank.SIX,
             Rank.KING, Rank.KING, Rank.KING, Rank.KING)
         engine.startRound()
@@ -50,9 +50,9 @@ class BlackjackDrawJournalTest {
         engine.hit()
         engine.hit()
         assertEquals(GamePhase.COMPLETE, engine.state.phase)
-        assertEquals(8, engine.state.drawnCards.size)
-        assertEquals(7, engine.state.drawnCards.count { it.isObserved })
-        assertFalse(engine.state.drawnCards[1].isObserved)
+        assertEquals(9, engine.state.drawnCards.size)
+        assertEquals(9, engine.state.drawnCards.count { it.isObserved })
+        assertTrue(engine.state.drawnCards[1].isObserved)
         assertEquals(listOf(HandOutcome.DEALER_WIN, HandOutcome.DEALER_WIN), engine.state.outcomes)
     }
 
@@ -66,7 +66,10 @@ class BlackjackDrawJournalTest {
     }
 
     private fun engine(vararg ranks: Rank) = BlackjackEngine(object : CardSource {
-        private val cards = ArrayDeque((ranks.toList() + listOf(Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX))
+        private val cards = ArrayDeque((ranks.toList() + listOf(
+            Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX,
+            Rank.TEN, Rank.FIVE, Rank.SEVEN, Rank.SIX,
+        ))
             .map { Card(it, Suit.CLUBS) })
         override val remainingCount get() = cards.size
         override fun prepareForNewRound() = false

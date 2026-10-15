@@ -1,0 +1,235 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "92a64039b3b4bb570f97d074959eeba6",
+    "entities": [
+      {
+        "tableName": "games",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `startedAt` INTEGER NOT NULL, `deckCount` INTEGER NOT NULL, `initialBet` INTEGER NOT NULL, `completedAt` INTEGER, `netChange` INTEGER, `balanceAfter` INTEGER, `abandonedAt` INTEGER, `committedBetCount` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAt",
+            "columnName": "startedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deckCount",
+            "columnName": "deckCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "initialBet",
+            "columnName": "initialBet",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAt",
+            "columnName": "completedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "netChange",
+            "columnName": "netChange",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "balanceAfter",
+            "columnName": "balanceAfter",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "abandonedAt",
+            "columnName": "abandonedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "committedBetCount",
+            "columnName": "committedBetCount",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "hand_results",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`gameId` TEXT NOT NULL, `handIndex` INTEGER NOT NULL, `bet` INTEGER NOT NULL, `outcome` TEXT NOT NULL, `netChange` INTEGER NOT NULL, PRIMARY KEY(`gameId`, `handIndex`), FOREIGN KEY(`gameId`) REFERENCES `games`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "handIndex",
+            "columnName": "handIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bet",
+            "columnName": "bet",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outcome",
+            "columnName": "outcome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "netChange",
+            "columnName": "netChange",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "gameId",
+            "handIndex"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "games",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "gameId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "card_draws",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`gameId` TEXT NOT NULL, `drawOrder` INTEGER NOT NULL, `rank` TEXT NOT NULL, `suit` TEXT NOT NULL, `deckIndex` INTEGER NOT NULL, `owner` TEXT NOT NULL, `handIndex` INTEGER, `isObserved` INTEGER NOT NULL, PRIMARY KEY(`gameId`, `drawOrder`), FOREIGN KEY(`gameId`) REFERENCES `games`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "drawOrder",
+            "columnName": "drawOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rank",
+            "columnName": "rank",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "suit",
+            "columnName": "suit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deckIndex",
+            "columnName": "deckIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "owner",
+            "columnName": "owner",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "handIndex",
+            "columnName": "handIndex",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "isObserved",
+            "columnName": "isObserved",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "gameId",
+            "drawOrder"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "games",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "gameId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "wallet",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `balance` INTEGER NOT NULL, `defaultBet` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "balance",
+            "columnName": "balance",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "defaultBet",
+            "columnName": "defaultBet",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '92a64039b3b4bb570f97d074959eeba6')"
+    ]
+  }
+}

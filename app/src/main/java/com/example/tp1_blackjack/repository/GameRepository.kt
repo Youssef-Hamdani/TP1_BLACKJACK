@@ -41,26 +41,21 @@ class GameRepository(private val database: AppDatabase) {
         it?.let { entity -> Wallet(entity.balance, entity.defaultBet) } ?: Wallet()
     }.distinctUntilChanged()
 
-    /**
-     * Refund the committed stakes from games interrupted by a process restart.
-     * Deleting an unfinished game also cascades to its draws so abandoned
-     * rounds do not distort statistics. Called at startup, not during play.
-     * Recovery is idempotent because removal and refund are one transaction.
-     */
+    /** Refund interrupted stakes once while retaining cards the player saw. */
     suspend fun recoverInterruptedRounds(): Int = database.withTransaction {
         val unfinished = games.findUnfinished()
         if (unfinished.isEmpty()) return@withTransaction 0
         wallet.initialize(WalletEntity())
         val current = checkNotNull(wallet.read())
         val refund = unfinished.sumOf { game ->
-            val handCount = if (draws.highestPlayerHandIndex(game.id) == 1) 2 else 1
-            game.initialBet.toLong() * handCount
+            game.initialBet.toLong() * game.committedBetCount
         }
         require(refund <= Int.MAX_VALUE.toLong() - current.balance) {
             "Interrupted-round refund would overflow the wallet"
         }
+        val abandonedAt = System.currentTimeMillis()
         unfinished.forEach { game ->
-            check(games.deleteUnfinished(game.id) == 1)
+            check(games.update(game.copy(abandonedAt = abandonedAt)) == 1)
         }
         wallet.setBalance(current.balance + refund.toInt())
         unfinished.size
@@ -79,6 +74,13 @@ class GameRepository(private val database: AppDatabase) {
             // Updating just this column cannot overwrite a concurrently settled balance.
             wallet.setDefaultBet(amount)
         }
+    }
+
+    suspend fun restartBankroll(): Boolean = database.withTransaction {
+        wallet.initialize(WalletEntity())
+        if (checkNotNull(wallet.read()).balance != 0) return@withTransaction false
+        wallet.setBalance(1_000)
+        true
     }
 
     suspend fun createGame(game: GameRecord) {
@@ -121,8 +123,12 @@ class GameRepository(private val database: AppDatabase) {
         require((state.phase == GamePhase.COMPLETE) == (completedAt != null))
         val existing = games.find(game.id)
         if (existing?.completedAt != null) return@withTransaction
+        check(existing?.abandonedAt == null) { "An abandoned game cannot be saved again" }
         if (existing == null) createGame(game)
         else require(existing.startedAt == game.startedAt && existing.initialBet == game.initialBet)
+        check(games.update(checkNotNull(games.find(game.id)).copy(
+            committedBetCount = state.committedBets.size,
+        )) == 1)
         require(state.drawnCards.map { it.drawOrder } == state.drawnCards.indices.toList())
         state.drawnCards.forEach {
             require(it.card.deckIndex >= 0)
@@ -164,6 +170,7 @@ class GameRepository(private val database: AppDatabase) {
         val game = checkNotNull(games.find(gameId)) { "Unknown game" }
         // A retry must never credit a previously completed game again.
         if (game.completedAt != null) return@withTransaction false
+        check(game.abandonedAt == null) { "An abandoned game cannot be settled" }
         require(completedAt >= game.startedAt && balanceAfter >= 0)
         require(hands.size in 1..2 && hands.map { it.handIndex }.sorted() == hands.indices.toList())
         hands.forEach {
@@ -186,5 +193,13 @@ class GameRepository(private val database: AppDatabase) {
 }
 
 private fun GameEntity.toRecord() = GameRecord(
-    id, startedAt, deckCount, initialBet, completedAt, netChange, balanceAfter,
+    id = id,
+    startedAt = startedAt,
+    deckCount = deckCount,
+    initialBet = initialBet,
+    completedAt = completedAt,
+    netChange = netChange,
+    balanceAfter = balanceAfter,
+    abandonedAt = abandonedAt,
+    committedBetCount = committedBetCount,
 )
