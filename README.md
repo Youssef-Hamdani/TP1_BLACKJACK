@@ -67,6 +67,4 @@ Le [tableau Trello du projet](https://trello.com/b/cG4pTP0E/blackjack-android-42
 
 Les tests doivent être relancés après chaque modification importante; leur présence dans le dépôt ne garantit pas qu'ils passent sur le dernier commit.
 
-**Documentation :** [diagrammes et explication de l'architecture](docs/architecture.md), [Product Backlog](docs/02%20-%20Product%20Backlog.md), [plan des sprints](docs/03%20-%20Sprint%20Plan.md) et [Sprint Reviews](docs/06%20-%20Sprint%20Reviews.md). La baseline approuvée est conservée sans modification dans `docs/baseline/`.
-
 **Limite connue :** une manche interrompue est remboursée, mais ne peut pas être reprise carte par carte. Le nom du joueur est une préférence locale; il ne représente pas un compte distinct.
