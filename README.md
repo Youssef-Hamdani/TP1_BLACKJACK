@@ -63,7 +63,7 @@ Si le solde atteint zéro, le joueur peut confirmer une remise à 1 000 jetons s
 
 ## Suivi Scrum
 
-Le [tableau Trello du projet](https://trello.com/b/cG4pTP0E/blackjack-android-420-c56-jo) contient le Product Backlog, les trois sprints et leurs revues. Les tâches non terminées restent indiquées dans le backlog.
+Le [tableau Trello du projet](https://trello.com/invite/b/6ace90516bdd3ca0b6721211/ATTIf5fc88e1b299f56d8529ffb2caefd27f7D0CB334/blackjack-android-420-c56-jo) contient le Product Backlog, les trois sprints et leurs revues. Les tâches non terminées restent indiquées dans le backlog.
 
 Les tests doivent être relancés après chaque modification importante; leur présence dans le dépôt ne garantit pas qu'ils passent sur le dernier commit.
 
